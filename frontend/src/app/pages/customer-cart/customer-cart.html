@@ -1,0 +1,82 @@
+<app-header [userName]="name" (logoutClick)="logout()"></app-header>
+
+<div class="max-w-4xl mx-auto p-6">
+  <h1 class="text-4xl font-extrabold mb-8 text-gray-800">🛒 Your Cart</h1>
+
+  <button
+    (click)="goHome()"
+    class="mb-6 flex items-center gap-2 px-4 py-2 bg-white shadow rounded-xl 
+           hover:bg-blue-50 hover:text-blue-600 transition">
+
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+    </svg>
+
+    Back to Home
+  </button>
+
+  <!-- Empty Cart -->
+  <div *ngIf="cart.length === 0"
+       class="text-gray-500 bg-white p-6 rounded-xl shadow text-center">
+    Your cart is empty.
+  </div>
+
+<!-- Cart Items -->
+<div *ngFor="let item of cart"
+     class="flex justify-between items-center bg-white p-5 mb-4 shadow-md rounded-xl hover:shadow-lg transition-shadow duration-300">
+
+  <div class="flex flex-col gap-2">
+    <p class="font-bold text-lg text-gray-800">{{ item.name }}</p>
+    <p class="text-gray-700">Price: <span class="font-semibold">₱{{ item.price }}</span></p>
+
+    <div class="flex items-center gap-3 mt-2">
+      <span class="text-gray-700">Quantity:</span>
+
+      <button (click)="updateQuantity(item, -1)"
+              class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition">
+        -
+      </button>
+
+      <span class="font-semibold text-gray-800">{{ item.quantity }}</span>
+
+      <button (click)="updateQuantity(item, 1)"
+              [disabled]="item.quantity >= item.stock_quantity"
+              class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
+        +
+      </button>
+    </div>
+
+    <!-- Dynamic Stock Message -->
+    <p *ngIf="item.quantity >= item.stock_quantity"
+       class="text-red-500 text-sm mt-1">
+      Stock unavailable
+    </p>
+    <p *ngIf="item.quantity < item.stock_quantity"
+       class="text-yellow-600 text-sm mt-1">
+      Only {{ item.stock_quantity - item.quantity }} left
+    </p>
+  </div>
+
+  <button (click)="removeItem(item.product_id)"
+          class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow transition">
+    Remove
+  </button>
+</div>
+
+  <!-- Total -->
+  <div *ngIf="cart.length > 0"
+       class="mt-6 text-2xl font-bold text-right text-gray-800">
+    Total: ₱{{ getTotal() }}
+  </div>
+
+  <!-- Checkout -->
+  <button *ngIf="cart.length > 0"
+          (click)="checkout()"
+          class="mt-6 w-full py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:bg-blue-700 transition">
+    Checkout
+  </button>
+</div>
+
+<app-footer></app-footer>

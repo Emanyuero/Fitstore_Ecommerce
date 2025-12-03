@@ -1,0 +1,54 @@
+// backend/db.js
+const mysql = require('mysql2');
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'fitstore'
+});
+
+/*CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    phone VARCHAR(20),
+    address VARCHAR(255),
+    gender ENUM('Male', 'Female', 'Other') DEFAULT 'Other',
+    dob DATE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+  	user_type VARCHAR(20) DEFAULT 'customer',
+  	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+     );
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    category VARCHAR(100),
+    price DECIMAL(10,2) NOT NULL,
+    stock_quantity INT NOT NULL,
+    date_added DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE carts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cart_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    FOREIGN KEY (cart_id) REFERENCES carts(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+
+  */
+
+module.exports = db;
+

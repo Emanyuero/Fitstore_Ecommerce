@@ -1,0 +1,161 @@
+<div class="min-h-screen bg-gray-100 flex flex-col">
+
+  <!-- Header -->
+  <app-header [userName]="name" (logoutClick)="logout()"></app-header>
+
+  <!-- Welcome -->
+  <div class="px-8 py-6 bg-white shadow-sm">
+    <h2 class="text-3xl font-bold text-gray-900">Welcome back, {{ name }}!</h2>
+    <p class="text-gray-600 mt-1">You are logged in as a <span class="font-semibold">Business Owner</span>.</p>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="px-8 py-4 flex flex-wrap gap-4 items-center bg-white shadow-sm border-b border-gray-200 z-10">
+    <div class="flex gap-3">
+      <button (click)="goHome()"
+              class="flex items-center gap-2 px-4 py-2 bg-white border shadow-sm rounded-xl hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition">
+        Home
+      </button>
+
+      <button (click)="openCreateModal()"
+              class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition">
+        + Add Product
+      </button>
+
+      <button (click)="goProfile()"
+              class="flex items-center gap-2 px-4 py-2 bg-white border shadow-sm rounded-xl hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M12 14c4.418 0 8 1.791 8 4v2H4v-2c0-2.209 3.582-4 8-4zm0-2a4 4 0 110-8 4 4 0 010 8z"/>
+        </svg>
+        Profile
+      </button>
+    </div>
+
+    <!-- Search Bar -->
+    <input type="text"
+           [(ngModel)]="searchTerm"
+           placeholder="Search products..."
+           class="ml-auto px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none w-64 bg-white"/>
+  </nav>
+
+  <!-- Products Section -->
+  <div class="px-8 py-6">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Your Products</h2>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let product of products | searchFilter:searchTerm"
+           class="bg-white rounded-xl shadow-md border border-gray-200 p-4 transition hover:shadow-xl hover:-translate-y-1">
+
+        <img *ngIf="product.image" [src]="product.image" alt="{{ product.name }}"
+             class="w-full h-44 object-cover rounded-lg shadow-sm mb-3">
+
+        <h3 class="text-xl font-semibold text-gray-900">{{ product.name }}</h3>
+        <p class="text-gray-600 mt-1">{{ product.description }}</p>
+
+        <p class="mt-3 text-lg font-bold text-gray-800">₱{{ product.price }}</p>
+
+              <div class="flex items-center gap-3 mt-2">
+              <span class="px-3 py-1 rounded-full text-xs font-medium"
+                [ngClass]="product.stock_quantity > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                {{ product.stock_quantity > 0 ? ('In Stock: ' + product.stock_quantity) : 'Out of Stock' }}
+              </span>
+
+              <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                {{ product.category }}
+              </span>
+            </div>
+
+        <!-- Buttons -->
+        <div class="mt-4 flex gap-2">
+          <button (click)="openEditModal(product)"
+                  class="flex-1 px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
+            Edit
+          </button>
+
+          <button (click)="deleteProduct(product.id)"
+                  class="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+            Delete
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+ <!-- Modal -->
+<div *ngIf="showModal"
+     class="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+  <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl relative z-50">
+
+    <h2 class="text-2xl font-extrabold mb-5 text-gray-800">
+      {{ editingProduct ? 'Edit Product' : 'Add Product' }}
+    </h2>
+
+    <form [formGroup]="productForm" (ngSubmit)="submitProduct()">
+
+      <!-- Name -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Name</label>
+        <input type="text" formControlName="name"
+               class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/>
+      </div>
+
+      <!-- Price -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Price</label>
+        <input type="number" formControlName="price"
+               class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Description</label>
+        <textarea formControlName="description" rows="3"
+                  class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+      <!-- Category -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Category</label>
+        <select formControlName="category"
+                class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="">Select Category</option>
+          <option value="Sports">Sports</option>
+          <option value="Fitness">Fitness</option>
+          <option value="Wellness">Wellness</option>
+        </select>
+      </div>
+
+      <!-- Stock -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Stock Quantity</label>
+        <input type="number" formControlName="stock_quantity"
+               class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/>
+      </div>
+
+      <!-- Image URL -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700">Product Image URL</label>
+        <input type="text" formControlName="image" placeholder="https://example.com/product.jpg"
+               class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"/>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end gap-3">
+        <button type="button" (click)="closeModal()"
+                class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+
+        <button type="submit"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          {{ editingProduct ? 'Update' : 'Create' }}
+        </button>
+      </div>
+
+    </form>
+    
+  </div>
+</div>
+  <!-- Footer -->
+  <app-footer></app-footer>

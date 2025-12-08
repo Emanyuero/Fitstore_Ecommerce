@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [HeaderComponent, FooterComponent, CommonModule],
   templateUrl: './owner-profile.html',
-  styleUrls: ['./owner-profile.css'], // <- corrected
+  styleUrls: ['./owner-profile.css'], 
 })
 export class OwnerProfile {
   name: string = localStorage.getItem('name') || '';

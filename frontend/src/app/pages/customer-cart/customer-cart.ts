@@ -1,45 +1,98 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { HeaderComponent } from '../../components/header/header';
+import { OrderService, CartItem } from '../../services/order/order';
+import { AlertService } from '../../services/alert/alert';
+import { CustomerHeaderComponent } from '../../components/header/customer-header/customer-header';
 import { FooterComponent } from '../../components/footer/footer';
 import { CommonModule } from '@angular/common';
-import { AlertService } from '../../services/alert/alert';
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  product_id: number;
-  stock_quantity: number;
-}
 
 @Component({
   selector: 'app-customer-cart',
-  standalone: true,
-  imports: [HeaderComponent, FooterComponent, CommonModule],
-  templateUrl: './customer-cart.html'
+  imports: [CustomerHeaderComponent, FooterComponent, CommonModule],
+  templateUrl: './customer-cart.html',
 })
 export class CustomerCart implements OnInit {
   name: string = localStorage.getItem('name') || '';
   cart: CartItem[] = [];
+  total: number = 0;
 
   constructor(
-    private router: Router,
-    private http: HttpClient,
-    private alert: AlertService
-  ) { }
+    private orderService: OrderService,
+    private alert: AlertService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    const role = (localStorage.getItem('role') || '').toLowerCase();
-    if (role !== 'customer') this.router.navigate(['/']);
     this.loadCart();
   }
 
-  goHome() {
-    this.router.navigate(['/customer-dashboard']);
+  loadCart() {
+    const email = localStorage.getItem('email')!;
+    this.orderService.getCart(email).subscribe(res => {
+      this.cart = res.cart || [];
+      this.calculateTotal();
+    });
   }
+
+  calculateTotal() {
+    this.total = this.cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+  }
+
+  updateQuantity(item: CartItem, change: number) {
+    const newQty = item.quantity + change;
+    if (newQty < 1 || (item.stock_quantity && newQty > item.stock_quantity)) return;
+
+    // Update locally for immediate UI feedback
+    item.quantity = newQty;
+    this.calculateTotal();
+
+    // Sync with backend
+    const email = localStorage.getItem('email')!;
+    this.orderService.updateCart(email, item.product_id, newQty).subscribe({
+      next: () => {},
+      error: () => {
+        this.alert.error('Failed to update quantity.');
+        // revert if server fails
+        item.quantity -= change;
+        this.calculateTotal();
+      }
+    });
+  }
+
+  removeItem(item: CartItem) {
+    // Remove locally
+    this.cart = this.cart.filter(ci => ci.product_id !== item.product_id);
+    this.calculateTotal();
+
+    const email = localStorage.getItem('email')!;
+    this.orderService.removeFromCart(email, item.product_id).subscribe({
+      next: () => this.alert.success(`${item.name} removed from cart`),
+      error: () => this.alert.error('Failed to remove item')
+    });
+  }
+
+checkout() {
+  // Filter out items that are unavailable (missing is_active defaults to true)
+  const unavailableItems = this.cart.filter(i => i.is_active === false);
+  if (unavailableItems.length > 0) {
+    this.alert.error('Some items are unavailable. Please remove them first.');
+    return;
+  }
+
+  const email = localStorage.getItem('email')!;
+  this.orderService.checkout(email).subscribe({
+    next: () => {
+      this.alert.success('Checkout successful!');
+      this.cart = [];
+      this.total = 0;
+      this.router.navigate(['/customer-orders']);
+    },
+    error: () => this.alert.error('Checkout failed'),
+  });
+}
+
+
 
   logout() {
     localStorage.clear();
@@ -47,78 +100,7 @@ export class CustomerCart implements OnInit {
     this.router.navigate(['/']);
   }
 
-  loadCart() {
-    const email = localStorage.getItem('email');
-    if (!email) return;
-
-    this.http.get<{ status: string, cart: CartItem[] }>(
-      `http://localhost:3000/api/cart/${email}`
-    ).subscribe(res => {
-      if (res.status === 'success') {
-        this.cart = res.cart.map(item => ({
-          ...item,
-          stock_quantity: item.stock_quantity || 0
-        }));
-      }
-    });
-  }
-
-  removeItem(productId: number) {
-    const email = localStorage.getItem('email');
-    if (!email) return;
-
-    this.http.delete(`http://localhost:3000/api/cart/remove/${email}/${productId}`)
-      .subscribe(
-        () => {
-          this.loadCart();
-          this.alert.success('Item removed from cart.');
-        },
-        (error) => this.alert.error('An error occurred while removing the item.')
-      );
-  }
-
-  updateQuantity(item: CartItem, change: number) {
-    const email = localStorage.getItem('email');
-    if (!email) return;
-
-    const newQty = item.quantity + change;
-    if (newQty < 1) return;
-
-    // frontend stock check
-    if (newQty > item.stock_quantity) {
-      this.alert.warning("Stock unavailable.");
-      return;
-    }
-
-    this.http.put(`http://localhost:3000/api/cart/update`, {
-      email,
-      product_id: item.product_id || item.id,
-      quantity: newQty
-    }).subscribe((res: any) => {
-      if (res.status === "failed") {
-        this.alert.warning("Stock unavailable.");
-        return;
-      }
-      this.loadCart();
-    });
-  }
-
-  checkout() {
-    const email = localStorage.getItem('email');
-    if (!email) return;
-
-    this.http.post(`http://localhost:3000/api/checkout`, { email })
-      .subscribe((res: any) => {
-        if (res.status === 'success') {
-          this.alert.success('Checkout successful!');
-          this.cart = [];
-        } else {
-          this.alert.error('Checkout failed.');
-        }
-      });
-  }
-
-  getTotal(): number {
-    return this.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  goHome() {
+    this.router.navigate(['/customer-dashboard']);
   }
 }

@@ -5,30 +5,12 @@ import { FooterComponent } from '../../components/footer/footer';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Pipe, PipeTransform } from '@angular/core';
 import { AlertService } from '../../services/alert/alert';
+import { SearchFilterPipe } from '../../services/pipes/searchfilter';
+import { ProductService } from '../../services/product/product';
+import { OrderService } from '../../services/order/order';
+import { CategoryFilterPipe } from '../../services/pipes/category';
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  category: string;
-  stock_quantity: number;
-  image?: string;
-}
-
-@Pipe({ name: 'searchFilter', standalone: true })
-export class SearchFilterPipe implements PipeTransform {
-  transform(items: any[], searchTerm: string): any[] {
-    if (!items || !searchTerm) return items;
-    searchTerm = searchTerm.toLowerCase();
-    return items.filter(item =>
-      item.name.toLowerCase().includes(searchTerm) ||
-      item.category.toLowerCase().includes(searchTerm)
-    );
-  }
-}
 
 @Component({
   selector: 'app-owner-dashboard',
@@ -40,121 +22,92 @@ export class SearchFilterPipe implements PipeTransform {
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    SearchFilterPipe
+    SearchFilterPipe,
+    CategoryFilterPipe
   ],
   templateUrl: './owner-dashboard.html'
 })
 export class OwnerDashboard implements OnInit {
   name: string = localStorage.getItem('name') || '';
-  products: Product[] = [];
-  showModal = false;
-  productForm!: FormGroup;
-  editingProduct: Product | null = null;
   searchTerm: string = '';
+  products: any[] = [];
+  order: any[] = [];
+  selectedCategory: string = '';
 
   constructor(
     private router: Router,
     private http: HttpClient,
     private fb: FormBuilder,
-    private alert: AlertService
+    private alert: AlertService,
+    private orders:  OrderService,
+    private productService: ProductService
+    
   ) { }
 
   ngOnInit() {
-    const role = (localStorage.getItem('role') || '').toLowerCase();
-    if (!['owner', 'business', 'admin'].includes(role)) {
-      this.router.navigate(['/']);
-    }
-
+    if ((localStorage.getItem('role') || '').toLowerCase() !== 'owner') this.router.navigate(['/']);
     this.loadProducts();
-
-    this.productForm = this.fb.group({
-      name: ['', Validators.required],
-      price: [null, [Validators.required, Validators.min(0)]],
-      description: ['', Validators.required],
-      category: ['', Validators.required],
-      stock_quantity: [null, [Validators.required, Validators.min(0)]],
-      image: ['']
-    });
+    this.loadOrders();
   }
+
+loadProducts() { this.productService.getAll().subscribe(res => { this.products = res.products; }); }
+  loadOrders() { this.orders.getAllOrders().subscribe(res => this.order = res.orders); }
+
+  viewOrder(orderId: number) { this.router.navigate([`/order-details/${orderId}`]); }
+    
+  navigateTo(section: string) {
+  switch (section) {
+    case 'addProduct':
+      this.router.navigate(['/create-product']);
+      break;
+    case 'orders':
+      this.router.navigate(['/order-component']);
+      break;
+    case 'inventory':
+      this.router.navigate(['/inventory-component']);
+      break;
+    case 'sales':
+      this.router.navigate(['sales-report']);
+      break;
+  }
+}
+editProduct(id: number) {
+  this.router.navigate([`/edit-product/${id}`]);
+}
+
+deleteProduct(id: number) {
+  this.alert.confirm('Are you sure you want to delete this product?').then(confirmed => {
+    if (!confirmed) return;
+
+    this.productService.delete(id).subscribe({
+      next: (res: any) => {
+        if (res.status === 'success') {
+          this.alert.success('Product deleted successfully.');
+          this.loadProducts(); // reload the products
+        } else {
+          this.alert.error(res.message || 'Failed to delete product.');
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.alert.error('An error occurred while deleting the product.');
+      }
+    });
+  });
+}
+
+
 
   logout() {
     localStorage.clear();
     this.alert.success('You have logged out successfully.');
     this.router.navigate(['/login']);
   }
-
-  goHome() {
-    this.router.navigate(['/owner-dashboard']);
-  }
-
-  goProfile() {
-    this.router.navigate(['/owner-profile']);
-  }
-
-  openCreateModal() {
-    this.editingProduct = null;
-    this.productForm.reset();
-    this.showModal = true;
-  }
-
-  openEditModal(product: Product) {
-    this.editingProduct = product;
-    this.productForm.patchValue(product);
-    this.showModal = true;
-  }
-
-  closeModal() {
-    this.showModal = false;
-  }
-
-  loadProducts() {
-    this.http.get<any>('http://localhost:3000/api/products').subscribe(res => {
-      if (res.status === 'success') this.products = res.products;
-    }, err => {
-      this.alert.error('Failed to load products.');
-    });
-  }
-
-  submitProduct() {
-    if (this.productForm.invalid) {
-      this.alert.warning('Please fill all fields.');
-      return;
-    }
-
-    const productData = this.productForm.value;
-
-    if (this.editingProduct) {
-      this.http.put(`http://localhost:3000/api/products/${this.editingProduct.id}`, productData)
-        .subscribe({
-          next: () => {
-            this.alert.success('Product updated successfully!');
-            this.closeModal();
-            this.loadProducts();
-          },
-          error: () => this.alert.error('Failed to update product.')
-        });
-    } else {
-      this.http.post('http://localhost:3000/api/products', productData)
-        .subscribe({
-          next: () => {
-            this.alert.success('Product created successfully!');
-            this.closeModal();
-            this.loadProducts();
-          },
-          error: () => this.alert.error('Failed to create product.')
-        });
-    }
-  }
-
-  deleteProduct(id: number) {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-
-    this.http.delete(`http://localhost:3000/api/products/${id}`).subscribe({
-      next: () => {
-        this.alert.success('Product deleted successfully!');
-        this.loadProducts();
-      },
-      error: () => this.alert.error('Failed to delete product.')
-    });
-  }
 }
+
+
+
+
+
+
+

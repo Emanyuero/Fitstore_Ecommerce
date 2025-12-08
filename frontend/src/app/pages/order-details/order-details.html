@@ -1,0 +1,76 @@
+<app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
+
+<div class="max-w-5xl mx-auto py-6 px-4">
+
+  <!-- Back Button -->
+  <button (click)="goHome()"
+          class="mb-6 flex items-center gap-2 px-4 py-2 bg-white shadow rounded-lg
+                 hover:bg-blue-50 hover:text-blue-600 transition font-medium">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+    </svg>
+    Back to Home
+  </button>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-10 text-gray-500">
+    Loading order details...
+  </div>
+
+  <!-- Order Details -->
+  <div *ngIf="order && !loading" class="bg-white p-6 rounded-lg shadow">
+
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold">Order #{{ order.id }}</h1>
+      <span class="px-3 py-1 rounded-full font-medium text-sm"
+            [ngClass]="{
+              'bg-green-100 text-green-800': order.status === 'Completed',
+              'bg-red-100 text-red-800': order.status === 'Cancelled',
+              'bg-yellow-100 text-yellow-800': order.status === 'Pending'
+            }">
+        {{ order.status || 'Pending' }}
+      </span>
+    </div>
+
+    <!-- Order Items Table -->
+    <table class="w-full text-left text-gray-700 border-collapse">
+      <thead>
+        <tr class="border-b border-gray-300">
+          <th class="py-2 px-3 text-sm font-semibold">Product</th>
+          <th class="py-2 px-3 text-sm font-semibold">Qty</th>
+          <th class="py-2 px-3 text-sm font-semibold">Price</th>
+          <th class="py-2 px-3 text-sm font-semibold">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items" class="border-b border-gray-200">
+          <td class="py-2 px-3">{{ item.product_name || 'Unnamed Product' }}</td>
+          <td class="py-2 px-3">{{ item.quantity }}</td>
+          <td class="py-2 px-3">₱{{ item.price || 0 }}</td>
+          <td class="py-2 px-3 font-semibold">₱{{ (item.price || 0) * item.quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Order Total -->
+    <p class="font-bold mt-4 text-right text-gray-900 text-lg">
+      Total: ₱{{ getOrderTotal() }}
+    </p>
+
+    <!-- Cancel Button -->
+    <button *ngIf="order.status !== 'Cancelled'"
+            (click)="cancelOrder()"
+            class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow font-medium">
+      Cancel Order
+    </button>
+
+  </div>
+
+  <div *ngIf="!order && !loading" class="text-gray-500 text-center py-10">
+    Order not found.
+  </div>
+</div>
+
+<app-footer></app-footer>

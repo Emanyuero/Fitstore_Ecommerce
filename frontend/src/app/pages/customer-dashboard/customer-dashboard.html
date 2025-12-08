@@ -1,93 +1,66 @@
-<!-- Customer Product List & Cart -->
+<div class="min-h-screen flex flex-col bg-gray-50">
 
-<div class="min-h-screen bg-gray-100 flex flex-col">
-  <!-- Header Component -->
-  <app-header [userName]="name" (logoutClick)="logout()"></app-header>
+  <!-- Header -->
+  <app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
 
-  <div class="max-w-7xl mx-auto w-full px-8 py-10 flex-1">
-    <!-- Navigation -->
-    <nav class="mb-10">
-      <ul class="flex flex-wrap gap-4 text-lg font-medium">
-        <!-- Home Button -->
-        <li>
-          <button (click)="goHome()"
-                  class="flex items-center gap-2 px-5 py-2.5 bg-white shadow-md rounded-xl 
-                         hover:bg-blue-50 hover:text-blue-600 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
-            </svg>
-            Home
-          </button>
-        </li>
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-8 py-10">
 
-        <!-- Cart Button -->
-        <li>
-          <button (click)="goCart()"
-                  class="flex items-center gap-2 px-5 py-2.5 bg-white shadow-md rounded-xl
-                         hover:bg-blue-50 hover:text-blue-600 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9M9 22a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/>
-            </svg>
-            Cart
-          </button>
-        </li>
-
-        <!-- Profile Button -->
-        <li>
-          <button (click)="goProfile()"
-                  class="flex items-center gap-2 px-5 py-2.5 bg-white shadow-md rounded-xl
-                         hover:bg-blue-50 hover:text-blue-600 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M12 14c4.418 0 8 1.791 8 4v2H4v-2c0-2.209 3.582-4 8-4zm0-2a4 4 0 110-8 4 4 0 010 8z"/>
-            </svg>
-            Profile
-          </button>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Header Text -->
+    <!-- Page Title -->
     <div class="mb-8">
       <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Sports & Fitness Store</h1>
       <p class="text-gray-600 mt-1 text-lg">Your journey to fitness starts here.</p>
     </div>
 
-    <!-- Search Bar -->
-    <div class="mb-10 flex justify-between items-center">
+    <!-- Search & Action Buttons -->
+    <div class="mb-10 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
       <input type="text"
              [(ngModel)]="searchTerm"
              placeholder="Search products..."
-             class="w-full max-w-lg px-5 py-3 border border-gray-300 rounded-xl shadow-sm
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"/>
+             class="w-full md:max-w-lg px-5 py-3 border border-gray-300 rounded-xl shadow-sm
+                    focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white transition duration-300 hover:shadow-md"/>
+
+      <div class="flex gap-3">
+        <button (click)="goToCart()" 
+                class="px-5 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 shadow-lg hover:shadow-xl transition duration-300 font-semibold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7H19m-12-7v7m6-7v7"/>
+          </svg>
+          View Cart ({{ cart.length }})
+        </button>
+
+        <button (click)="goToOrders()" 
+                class="px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transition duration-300 font-semibold">
+          My Orders
+        </button>
+      </div>
     </div>
 
     <!-- Products Grid -->
-    <main class="px-2 flex-1">
-      <h2 class="text-2xl font-bold mb-6">Available Products</h2>
+    <section>
+      <h2 class="text-2xl font-bold mb-6 text-gray-900">Available Products</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
         <div *ngFor="let product of products | searchFilter: searchTerm"
-             class="bg-white rounded-xl shadow-md p-6 border border-gray-200
-                    hover:shadow-xl transition flex flex-col justify-between">
+             class="bg-white rounded-2xl shadow-md border border-gray-200 
+                    hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between p-6">
 
           <div>
             <!-- Product Image -->
             <img *ngIf="product.image" [src]="product.image"
-                 class="w-full h-48 object-cover rounded-lg mb-4 shadow-sm" />
+                 class="w-full h-48 object-cover rounded-xl mb-4 shadow-sm transition-transform duration-300 hover:scale-105"/>
 
+            <!-- Product Details -->
             <h3 class="text-xl font-semibold text-gray-900">{{ product.name }}</h3>
             <p class="text-gray-600 text-sm mt-1">{{ product.description }}</p>
 
             <p class="mt-3 font-bold text-gray-800 text-lg">₱{{ product.price }}</p>
 
-            <div class="flex items-center gap-3 mt-2">
+            <!-- Badges -->
+            <div class="flex items-center gap-3 mt-3 flex-wrap">
               <span class="px-3 py-1 rounded-full text-xs font-medium"
                 [ngClass]="product.stock_quantity > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
                 {{ product.stock_quantity > 0 ? ('In Stock: ' + product.stock_quantity) : 'Out of Stock' }}
@@ -99,18 +72,26 @@
             </div>
           </div>
 
+          <!-- Add to Cart Button -->
           <button (click)="addToCart(product)"
                   [disabled]="product.stock_quantity === 0"
-                  class="mt-5 px-4 py-2 bg-green-600 text-white rounded-lg 
-                         hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow">
+                  class="mt-5 px-4 py-3 bg-green-600 text-white rounded-xl 
+                         hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-lg transition-all duration-300 font-medium flex items-center justify-center gap-2">
+            <svg *ngIf="product.stock_quantity > 0" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7H19m-12-7v7m6-7v7"/>
+            </svg>
             {{ product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart' }}
           </button>
 
         </div>
       </div>
-    </main>
-  </div>
+    </section>
+
+  </main>
 
   <!-- Footer -->
-  <app-footer></app-footer>
+  <app-footer class="mt-auto"></app-footer>
+
 </div>

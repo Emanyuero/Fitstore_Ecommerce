@@ -1,0 +1,73 @@
+  <app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
+
+  <!-- Back Button -->
+  <div class="max-w-5xl mx-auto p-6">
+    <button
+      (click)="goHome()"
+      class="mb-6 flex items-center gap-2 px-4 py-2 bg-white shadow rounded-xl 
+            hover:bg-blue-50 hover:text-blue-600 transition font-medium">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+      </svg>
+      Back to Home
+    </button>
+
+    <h1 class="text-3xl font-bold mb-6">My Orders</h1>
+
+    <!-- No Orders -->
+    <div *ngIf="orders.length === 0" class="text-gray-500">
+      No orders found.
+    </div>
+
+    <!-- Orders List -->
+    <div *ngFor="let order of orders"
+        class="bg-white p-5 rounded-lg shadow mb-4 border border-gray-200">
+
+      <div class="flex justify-between items-center mb-3">
+        <div>
+          <h2 class="text-xl font-semibold">Order #{{ order.id }}</h2>
+          <p class="text-gray-600 text-sm mt-1">Date: {{ order.order_date | date:'medium' }}</p>
+          <p><strong>Status:</strong> {{ order.status || 'Pending' }}</p>
+
+          <p *ngIf="allItemsUnavailable(order)" class="text-red-600 font-semibold mt-1">
+            All items in this order are unavailable
+          </p>
+        </div>
+
+        <button (click)="viewOrder(order)"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow font-medium">
+          View Details
+        </button>
+      </div>
+
+      <!-- Products List -->
+      <table class="w-full text-left text-gray-700 border-collapse mt-3">
+        <thead>
+          <tr class="border-b border-gray-300">
+            <th class="py-2 px-3 text-sm font-semibold">Product</th>
+            <th class="py-2 px-3 text-sm font-semibold">Qty</th>
+            <th class="py-2 px-3 text-sm font-semibold">Price</th>
+            <th class="py-2 px-3 text-sm font-semibold">Total</th>
+          </tr>
+        </thead>
+        <tbody> 
+          <tr *ngFor="let item of order.items" class="border-b border-gray-200">
+            <td class="py-2 px-3">{{ item.product_name || 'Unnamed Product' }}</td>
+            <td class="py-2 px-3">{{ item.quantity }}</td>
+            <td class="py-2 px-3">₱{{ item.price || 0 }}</td>
+            <td class="py-2 px-3 font-semibold">₱{{ (item.price || 0) * item.quantity }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Order Total -->
+      <p class="font-bold mt-3 text-right text-gray-900 text-lg">
+        Order Total: ₱{{ getOrderTotal(order) }}
+      </p>
+
+    </div>
+  </div>
+
+  <app-footer></app-footer>

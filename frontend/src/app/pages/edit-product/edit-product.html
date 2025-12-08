@@ -5,15 +5,16 @@
   <!-- Page Header with Home Button -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Add New Product</h2>
-      <p class="text-gray-500 mt-1">Fill in the details below to publish a new item to your store.</p>
+      <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Edit Product</h2>
+      <p class="text-gray-500 mt-1">Update product details in your store.</p>
     </div>
 
-    <!-- Home Button -->
+    <!-- Home Button with Hover Animation -->
     <button
       (click)="goHome()"
       class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200 group"
     >
+      <!-- Home Icon -->
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 group-hover:text-blue-600 transition-transform duration-200 transform group-hover:scale-110"
            fill="currentColor" viewBox="0 0 20 20">
         <path d="M10.707 1.293a1 1 0 00-1.414 0L1 9.586V18a2 2 0 002 2h5v-5a1 1 0 012 0v5h5a2 2 0 002-2V9.586l-8.293-8.293z"/>
@@ -93,7 +94,7 @@
       [disabled]="productForm.invalid"
       class="w-full py-3 text-center rounded-lg bg-blue-600 text-white font-semibold text-lg shadow hover:bg-blue-700 hover:shadow-md transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
     >
-      Publish Product
+      Update Product
     </button>
   </form>
 </div>

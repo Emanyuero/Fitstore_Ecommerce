@@ -1,0 +1,50 @@
+<div class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <app-header [userName]="name" (logoutClick)="logout()"></app-header>
+
+  <!-- Main Content -->
+  <div class="flex-1 px-8 py-6">
+
+    <h2 class="text-3xl font-extrabold mb-6 text-gray-900">Orders</h2>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border border-gray-200 rounded-xl shadow-sm">
+        <thead class="bg-gray-100 rounded-t-xl">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Order ID</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Total Amount</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders" class="border-b last:border-b-0 hover:shadow-md transition-all rounded-lg">
+            <td class="px-6 py-4 font-medium text-gray-800">{{ order.id }}</td>
+            <td class="px-6 py-4 text-gray-700">{{ order.customer_name }}</td>
+            <td class="px-6 py-4 text-gray-700">{{ order.order_date | date:'short' }}</td>
+            <td class="px-6 py-4 font-semibold text-gray-900">₱{{ getOrderTotal(order.id) }}</td>
+            <td class="px-6 py-4">
+              <span 
+                class="px-3 py-1 rounded-full text-xs font-medium"
+                [ngClass]="{
+                  'bg-yellow-100 text-yellow-700': order.status === 'Pending',
+                  'bg-blue-100 text-blue-700': order.status === 'Processing',
+                  'bg-green-100 text-green-700': order.status === 'Delivered',
+                  'bg-red-100 text-red-700': order.status === 'Cancelled'
+                }">
+                {{ order.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
+
+</div>

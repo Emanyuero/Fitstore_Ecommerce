@@ -1,4 +1,4 @@
-<app-header [userName]="name" (logoutClick)="logout()"></app-header>
+<app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
 
 <div class="max-w-4xl mx-auto p-6">
   <h1 class="text-4xl font-extrabold mb-8 text-gray-800">🛒 Your Cart</h1>
@@ -23,52 +23,54 @@
     Your cart is empty.
   </div>
 
-<!-- Cart Items -->
-<div *ngFor="let item of cart"
-     class="flex justify-between items-center bg-white p-5 mb-4 shadow-md rounded-xl hover:shadow-lg transition-shadow duration-300">
+  <!-- Cart Items -->
+  <div *ngFor="let item of cart"
+       class="flex justify-between items-center bg-white p-5 mb-4 shadow-md rounded-xl hover:shadow-lg transition-shadow duration-300">
 
-  <div class="flex flex-col gap-2">
-    <p class="font-bold text-lg text-gray-800">{{ item.name }}</p>
-    <p class="text-gray-700">Price: <span class="font-semibold">₱{{ item.price }}</span></p>
+    <div class="flex flex-col gap-2">
+      <p class="font-bold text-lg text-gray-800">{{ item.name }}</p>
+      <p class="text-gray-700">Price: <span class="font-semibold">₱{{ item.price }}</span></p>
 
-    <div class="flex items-center gap-3 mt-2">
-      <span class="text-gray-700">Quantity:</span>
+      <div class="flex items-center gap-3 mt-2">
+        <span class="text-gray-700">Quantity:</span>
 
-      <button (click)="updateQuantity(item, -1)"
-              class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition">
-        -
-      </button>
+        <button (click)="updateQuantity(item, -1)"
+                [disabled]="item.quantity <= 1"
+                class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
+          -
+        </button>
 
-      <span class="font-semibold text-gray-800">{{ item.quantity }}</span>
+        <span class="font-semibold text-gray-800">{{ item.quantity }}</span>
 
-      <button (click)="updateQuantity(item, 1)"
-              [disabled]="item.quantity >= item.stock_quantity"
-              class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
-        +
-      </button>
+        <button (click)="updateQuantity(item, 1)"
+                [disabled]="item.stock_quantity !== undefined && item.quantity >= item.stock_quantity"
+                class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
+          +
+        </button>
+      </div>
+
+      <!-- Dynamic Stock Messages -->
+      <p *ngIf="item.stock_quantity !== undefined && item.quantity >= item.stock_quantity"
+        class="text-red-500 text-sm mt-1">
+        Stock unavailable
+      </p>
+
+      <!-- Owner deleted the product -->
+      <p *ngIf="!item.is_active" class="text-red-600 text-sm mt-1">
+        Unavailable
+      </p>
     </div>
 
-    <!-- Dynamic Stock Message -->
-    <p *ngIf="item.quantity >= item.stock_quantity"
-       class="text-red-500 text-sm mt-1">
-      Stock unavailable
-    </p>
-    <p *ngIf="item.quantity < item.stock_quantity"
-       class="text-yellow-600 text-sm mt-1">
-      Only {{ item.stock_quantity - item.quantity }} left
-    </p>
+    <button (click)="removeItem(item)"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow transition">
+      Remove
+    </button>
   </div>
-
-  <button (click)="removeItem(item.product_id)"
-          class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow transition">
-    Remove
-  </button>
-</div>
 
   <!-- Total -->
   <div *ngIf="cart.length > 0"
        class="mt-6 text-2xl font-bold text-right text-gray-800">
-    Total: ₱{{ getTotal() }}
+    Total: ₱{{ total }}
   </div>
 
   <!-- Checkout -->

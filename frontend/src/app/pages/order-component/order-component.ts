@@ -6,11 +6,13 @@ import { FooterComponent } from '../../components/footer/footer';
 import { CommonModule } from '@angular/common';
 import { AlertService } from '../../services/alert/alert';
 import { interval, Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, HeaderComponent, FooterComponent, FormsModule],
   templateUrl: './order-component.html'
 })
 export class OrdersComponent implements OnInit, OnDestroy {
@@ -34,6 +36,10 @@ ngOnInit() {
     localStorage.clear();
     this.router.navigate(['/login']);
   }
+  goBack() {
+  window.history.back();
+}
+
 
   loadOrders() {
     this.http.get<any>('http://localhost:3000/api/orders').subscribe({
@@ -55,6 +61,20 @@ ngOnInit() {
   getOrderTotal(orderId: number): number {
     const items = this.itemsByOrder[orderId] || [];
     return items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  }
+
+    updateStatus(orderId: number, status: string) {
+    this.http.put<any>(
+      `http://localhost:3000/api/orders/${orderId}/status`,
+      { status }
+    ).subscribe({
+      next: (res) => {
+        if (res.status === 'success') {
+          this.alert.success(`Order #${orderId} updated to ${status}`);
+        }
+      },
+      error: () => this.alert.error('Failed to update status')
+    });
   }
 }
 

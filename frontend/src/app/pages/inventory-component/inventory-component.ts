@@ -33,6 +33,10 @@ export class InventoryComponent implements OnInit, OnDestroy {
     localStorage.clear();
     this.router.navigate(['/login']);
   }
+  goBack() {
+  window.history.back();
+}
+
 
   loadInventoryLogs() {
     this.http.get<any>('http://localhost:3000/api/inventory').subscribe({

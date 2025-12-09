@@ -69,11 +69,13 @@ CREATE TABLE order_items (
 CREATE TABLE inventory_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
-    change_type ENUM('restock','sale','adjustment'),
+    product_name VARCHAR(255),
+    change_type VARCHAR(50),  -- order, update, restock, remove
     quantity_changed INT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id)
+    current_stock INT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE sales_reports (
     id INT AUTO_INCREMENT PRIMARY KEY,

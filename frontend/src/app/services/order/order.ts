@@ -79,8 +79,12 @@
 
 
       updateStatus(orderId: number, status: string): Observable<{ status: string; message: string }> {
-        return this.http.put<{ status: string; message: string }>(`${this.apiUrl}/orders/update_status/${orderId}`, { status });
+        return this.http.put<{ status: string; message: string }>(
+          `${this.apiUrl}/orders/${orderId}/status`,
+          { status }
+        );
       }
+
 
       cancelOrder(orderId: number): Observable<{ status: string; message: string }> {
         return this.http.put<{ status: string; message: string }>(`${this.apiUrl}/orders/cancel/${orderId}`, {});

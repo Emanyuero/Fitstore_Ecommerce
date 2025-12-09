@@ -32,6 +32,10 @@ export class SalesComponent implements OnInit, OnDestroy {
     localStorage.clear();
     this.router.navigate(['/login']);
   }
+  goBack() {
+  window.history.back();
+}
+
 
   loadSalesReports() {
     this.http.get<any>('http://localhost:3000/api/sales-reports').subscribe({

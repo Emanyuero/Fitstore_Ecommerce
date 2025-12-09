@@ -74,6 +74,9 @@ loadOrder() {
   goHome() {
     this.router.navigate(['/customer-dashboard']);
   }
+  goBack() {
+    window.history.back();
+  }
 
   logout() {
     localStorage.clear();

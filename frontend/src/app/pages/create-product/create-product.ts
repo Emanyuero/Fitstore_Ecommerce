@@ -32,20 +32,40 @@ export class CreateProduct {
     });
   }
 
-  onSubmit() {
-    if (this.productForm.invalid) {
-      return this.alert.warning('Please fill in all required fields.');
+    onSubmit() {
+      if (this.productForm.invalid) {
+        return this.alert.warning('Please fill in all required fields.');
+      }
+
+      const formData = new FormData();
+      formData.append('name', this.productForm.value.name);
+      formData.append('description', this.productForm.value.description);
+      formData.append('price', this.productForm.value.price);
+      formData.append('category', this.productForm.value.category);
+      formData.append('stock_quantity', this.productForm.value.stock_quantity);
+
+      if (this.selectedFile) {
+        formData.append('image', this.selectedFile);
+      }
+
+      this.productService.createImage(formData).subscribe({
+        next: () => {
+          this.alert.success('Product created successfully!');
+          this.router.navigate(['/owner-dashboard']);
+        },
+        error: () => this.alert.error('Failed to create product.')
+      });
     }
 
-    const product: Product = this.productForm.value;
-    this.productService.create(product).subscribe({
-      next: () => {
-        this.alert.success('Product created successfully!');
-        this.router.navigate(['/owner-dashboard']);
-      },
-      error: () => this.alert.error('Failed to create product.')
-    });
-  }
+
+      selectedFile: File | null = null;
+
+    onFileChange(event: any) {
+      if (event.target.files && event.target.files.length) {
+        this.selectedFile = event.target.files[0];
+      }
+    }
+
 
   logout() {
     localStorage.clear();

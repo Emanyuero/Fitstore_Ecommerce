@@ -4,9 +4,33 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const db = require('./db');
 
+// ✅ Add these two lines
+const multer = require('multer');  
+const path = require('path');
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+// ============================
+// Multer storage config
+// ============================
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // save images here
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname)); // unique filename
+  }
+});
+
+const upload = multer({ storage });
+
+// ============================
+// Serve static files (images)
+// ============================
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 /* ============================================================
    REGISTER
@@ -68,7 +92,7 @@ app.post('/api/login', (req, res) => {
    PRODUCTS
 ============================================================ */
 
-// Get all active products (customers only see active ones)
+// ✅ Get all active products
 app.get('/api/products', (req, res) => {
   db.query(
     'SELECT *, IF(stock_quantity > 0, "available", "unavailable") AS status FROM products WHERE is_active = 1',
@@ -79,7 +103,7 @@ app.get('/api/products', (req, res) => {
   );
 });
 
-// Get single product by ID
+// ✅ Get single product by ID
 app.get('/api/products/:id', (req, res) => {
   db.query('SELECT * FROM products WHERE id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ status: 'error', message: err.message });
@@ -88,19 +112,35 @@ app.get('/api/products/:id', (req, res) => {
   });
 });
 
-// Add new product
-app.post('/api/products', (req, res) => {
+// ✅ Add new product with optional image upload
+// Changed to use multer to handle image
+app.post('/api/products', upload.single('image'), (req, res) => {
   const { name, price, description, category, stock_quantity } = req.body;
-  if (!name || !price) return res.status(400).json({ status: 'error', message: 'Name and price are required.' });
 
-  const sql = `INSERT INTO products (name, price, description, category, stock_quantity, is_active) VALUES (?, ?, ?, ?, ?, 1)`;
-  db.query(sql, [name, price, description, category, stock_quantity || 0], (err, result) => {
+  // ✅ Store full URL so frontend can access the image correctly
+  const image = req.file ? `http://localhost:3000/uploads/${req.file.filename}` : null;
+
+  if (!name || !price)
+    return res.status(400).json({ status: 'error', message: 'Name and price are required.' });
+
+  const sql = `
+    INSERT INTO products (name, price, description, category, stock_quantity, image, is_active)
+    VALUES (?, ?, ?, ?, ?, ?, 1)
+  `;
+
+  db.query(sql, [name, price, description, category, stock_quantity || 0, image], (err, result) => {
     if (err) return res.status(500).json({ status: 'error', message: err.message });
-    res.json({ status: 'success', message: 'Product added successfully', productId: result.insertId });
+    res.json({ 
+      status: 'success', 
+      message: 'Product added successfully', 
+      productId: result.insertId,
+      image // ✅ return the image URL so Angular can display it immediately
+    });
   });
 });
 
-// Update product
+
+// ✅ Update product
 app.put('/api/products/:id', (req, res) => {
   const productId = req.params.id;
   const { name, price, description, category, stock_quantity } = req.body;
@@ -111,7 +151,7 @@ app.put('/api/products/:id', (req, res) => {
   });
 });
 
-// Soft-delete product (mark as inactive)
+// ✅ Soft-delete product
 app.delete('/api/products/:id', (req, res) => {
   const productId = req.params.id;
   db.query('UPDATE products SET is_active = 0 WHERE id = ?', [productId], (err, result) => {
@@ -310,33 +350,11 @@ app.get('/api/orders/:email', (req, res) => {
     JOIN users u ON u.id = o.user_id
     WHERE u.email = ?
     ORDER BY o.order_date DESC
-  `, [email], (err, orders) => {
+  `, [email], (err, results) => {
     if (err) return res.json({ status: 'error', message: err.message });
-
-    if (!orders.length) return res.json({ status: 'success', orders: [] });
-
-    // Fetch items for each order
-    const orderIds = orders.map(o => o.id);
-    const sqlItems = `
-      SELECT oi.*, p.name AS product_name, p.price, p.is_active
-      FROM order_items oi
-      JOIN products p ON p.id = oi.product_id
-      WHERE oi.order_id IN (?)
-    `;
-    db.query(sqlItems, [orderIds], (err2, items) => {
-      if (err2) return res.json({ status: 'error', message: err2.message });
-
-      // Map items to orders
-      const ordersWithItems = orders.map(order => ({
-        ...order,
-        items: items.filter(i => i.order_id === order.id)
-      }));
-
-      res.json({ status: 'success', orders: ordersWithItems });
-    });
+    res.json({ status: 'success', orders: results });
   });
 });
-
 // GET order items by order ID
 app.get('/api/order_items/:orderId', (req, res) => {
   const orderId = req.params.orderId;

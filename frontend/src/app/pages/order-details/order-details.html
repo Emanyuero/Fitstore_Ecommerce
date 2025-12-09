@@ -1,76 +1,110 @@
 <app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
 
-<div class="max-w-5xl mx-auto py-6 px-4">
+<!-- Page Wrapper for Sticky Footer -->
+<div class="min-h-screen flex flex-col bg-gray-100">
 
-  <!-- Back Button -->
-  <button (click)="goHome()"
-          class="mb-6 flex items-center gap-2 px-4 py-2 bg-white shadow rounded-lg
-                 hover:bg-blue-50 hover:text-blue-600 transition font-medium">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-         viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
-    </svg>
-    Back to Home
-  </button>
+  <!-- CONTENT -->
+  <div class="flex-grow max-w-5xl mx-auto py-8 px-4 w-full">
+    <!-- Back to Previous Page -->
+      <button
+        (click)="goBack()"
+        class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-xl
+              hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700 transition font-medium">
 
-  <!-- Loading -->
-  <div *ngIf="loading" class="text-center py-10 text-gray-500">
-    Loading order details...
-  </div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M15 19l-7-7 7-7" />
+        </svg>
 
-  <!-- Order Details -->
-  <div *ngIf="order && !loading" class="bg-white p-6 rounded-lg shadow">
+        Back to Previous Page
+      </button>
 
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-3xl font-bold">Order #{{ order.id }}</h1>
-      <span class="px-3 py-1 rounded-full font-medium text-sm"
-            [ngClass]="{
-              'bg-green-100 text-green-800': order.status === 'Completed',
-              'bg-red-100 text-red-800': order.status === 'Cancelled',
-              'bg-yellow-100 text-yellow-800': order.status === 'Pending'
-            }">
-        {{ order.status || 'Pending' }}
-      </span>
-    </div>
-
-    <!-- Order Items Table -->
-    <table class="w-full text-left text-gray-700 border-collapse">
-      <thead>
-        <tr class="border-b border-gray-300">
-          <th class="py-2 px-3 text-sm font-semibold">Product</th>
-          <th class="py-2 px-3 text-sm font-semibold">Qty</th>
-          <th class="py-2 px-3 text-sm font-semibold">Price</th>
-          <th class="py-2 px-3 text-sm font-semibold">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of items" class="border-b border-gray-200">
-          <td class="py-2 px-3">{{ item.product_name || 'Unnamed Product' }}</td>
-          <td class="py-2 px-3">{{ item.quantity }}</td>
-          <td class="py-2 px-3">₱{{ item.price || 0 }}</td>
-          <td class="py-2 px-3 font-semibold">₱{{ (item.price || 0) * item.quantity }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Order Total -->
-    <p class="font-bold mt-4 text-right text-gray-900 text-lg">
-      Total: ₱{{ getOrderTotal() }}
-    </p>
-
-    <!-- Cancel Button -->
-    <button *ngIf="order.status !== 'Cancelled'"
-            (click)="cancelOrder()"
-            class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow font-medium">
-      Cancel Order
+    <!-- Back Button -->
+    <button (click)="goHome()"
+            class="mb-6 flex items-center gap-2 px-4 py-2 bg-white shadow-sm border 
+                   rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+      </svg>
+      Back to Home
     </button>
 
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-16 text-gray-500 text-lg">
+      Loading order details...
+    </div>
+
+    <!-- ORDER DETAILS -->
+    <div *ngIf="order && !loading"
+         class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+
+      <!-- HEADER -->
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-extrabold text-gray-900">
+          Order #{{ order.id }}
+        </h1>
+
+        <span class="px-4 py-1.5 rounded-full font-semibold text-sm shadow-sm"
+              [ngClass]="{
+                'bg-green-100 text-green-700': order.status === 'Completed',
+                'bg-red-100 text-red-700': order.status === 'Cancelled',
+                'bg-yellow-100 text-yellow-700': order.status === 'Pending'
+              }">
+          {{ order.status || 'Pending' }}
+        </span>
+      </div>
+
+      <!-- TABLE -->
+      <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left text-gray-700 border-collapse">
+          <thead class="bg-gray-50">
+            <tr class="border-b border-gray-200">
+              <th class="py-3 px-4 text-sm font-semibold">Product</th>
+              <th class="py-3 px-4 text-sm font-semibold">Qty</th>
+              <th class="py-3 px-4 text-sm font-semibold">Price</th>
+              <th class="py-3 px-4 text-sm font-semibold">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of items" class="border-b border-gray-100 hover:bg-gray-50">
+              <td class="py-3 px-4 font-medium">{{ item.product_name || 'Unnamed Product' }}</td>
+              <td class="py-3 px-4">{{ item.quantity }}</td>
+              <td class="py-3 px-4">₱{{ item.price || 0 }}</td>
+              <td class="py-3 px-4 font-semibold text-gray-900">
+                ₱{{ (item.price || 0) * item.quantity }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOTAL -->
+      <p class="font-extrabold mt-6 text-right text-gray-900 text-xl">
+        Total: ₱{{ getOrderTotal() }}
+      </p>
+
+      <!-- CANCEL BUTTON -->
+      <button *ngIf="order.status !== 'Cancelled'"
+              (click)="cancelOrder()"
+              class="mt-6 w-full sm:w-auto px-6 py-3 bg-red-600 text-white 
+                     rounded-lg hover:bg-red-700 shadow-md font-semibold 
+                     transition">
+        Cancel Order
+      </button>
+
+    </div>
+
+    <!-- Not Found -->
+    <div *ngIf="!order && !loading" class="text-gray-500 text-center py-16 text-lg">
+      Order not found.
+    </div>
+
   </div>
 
-  <div *ngIf="!order && !loading" class="text-gray-500 text-center py-10">
-    Order not found.
-  </div>
+  <!-- STICKY FOOTER -->
+  <app-footer class="mt-auto"></app-footer>
+
 </div>
-
-<app-footer></app-footer>

@@ -41,10 +41,63 @@
     <!-- Products Grid -->
     <section>
       <h2 class="text-2xl font-bold mb-6 text-gray-900">Available Products</h2>
+      <!-- Category Filter -->
+<div class="mb-6">
+  <label class="text-gray-700 font-medium block mb-3">Filter by Category:</label>
+
+  <div class="flex gap-3 flex-wrap">
+
+        <!-- ALL Button -->
+        <button
+          (click)="selectedCategory = ''"
+          class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
+          hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === '' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          All
+        </button>
+
+        <!-- SPORTS Button -->
+        <button
+          (click)="selectedCategory = 'Sports'"
+          class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
+          hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === 'Sports' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          Sports
+        </button>
+
+        <!-- FITNESS Button -->
+        <button
+          (click)="selectedCategory = 'Fitness'"
+          class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
+          hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === 'Fitness' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          Fitness
+        </button>
+
+        <!-- WELLNESS Button -->
+        <button
+          (click)="selectedCategory = 'Wellness'"
+          class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
+          hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === 'Wellness' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          Wellness
+        </button>
+
+      </div>
+    </div>
+
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
-        <div *ngFor="let product of products | searchFilter: searchTerm"
+        <div *ngFor="let product of products | searchFilter: searchTerm | categoryFilter: selectedCategory"
              class="bg-white rounded-2xl shadow-md border border-gray-200 
                     hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between p-6">
 

@@ -43,13 +43,13 @@ export class CustomerOrders implements OnInit {
     this.router.navigate(['/customer-dashboard']);
   }
 
+  goBack() {
+  window.history.back();
+}
+
   logout() {
     localStorage.clear();
     this.alert.success('You have logged out successfully.');
     this.router.navigate(['/']);
-  }
-
-  getOrderTotal(order: Order): number {
-    return order.items?.reduce((sum, i) => sum + ((i.price || 0) * i.quantity), 0) || 0;
   }
 }

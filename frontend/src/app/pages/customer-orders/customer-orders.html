@@ -1,11 +1,30 @@
-  <app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
+<app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
 
-  <!-- Back Button -->
-  <div class="max-w-5xl mx-auto p-6">
+<!-- Wrapper for Sticky Footer -->
+<div class="min-h-screen flex flex-col bg-gray-100">
+
+  <!-- CONTENT -->
+  <div class="flex-grow max-w-5xl mx-auto p-6 w-full">
+      
+    <button
+        (click)="goBack()"
+        class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-xl
+              hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700 transition font-medium">
+
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M15 19l-7-7 7-7" />
+        </svg>
+
+        Back to Previous Page
+      </button>
+
+    <!-- Back Button -->
     <button
       (click)="goHome()"
-      class="mb-6 flex items-center gap-2 px-4 py-2 bg-white shadow rounded-xl 
-            hover:bg-blue-50 hover:text-blue-600 transition font-medium">
+      class="mb-8 flex items-center gap-2 px-4 py-2 bg-white shadow-sm rounded-xl 
+            border hover:bg-blue-50 hover:text-blue-600 transition font-medium">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none"
           viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -14,60 +33,50 @@
       Back to Home
     </button>
 
-    <h1 class="text-3xl font-bold mb-6">My Orders</h1>
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-6">My Orders</h1>
 
     <!-- No Orders -->
-    <div *ngIf="orders.length === 0" class="text-gray-500">
-      No orders found.
+    <div *ngIf="orders.length === 0"
+         class="text-gray-500 bg-white p-8 rounded-xl shadow text-center border">
+      You have no orders yet.
     </div>
 
     <!-- Orders List -->
     <div *ngFor="let order of orders"
-        class="bg-white p-5 rounded-lg shadow mb-4 border border-gray-200">
+         class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6 transition hover:shadow-lg">
 
-      <div class="flex justify-between items-center mb-3">
+      <div class="flex justify-between items-center mb-4">
         <div>
-          <h2 class="text-xl font-semibold">Order #{{ order.id }}</h2>
+          <h2 class="text-xl font-bold text-gray-900">Order #{{ order.id }}</h2>
           <p class="text-gray-600 text-sm mt-1">Date: {{ order.order_date | date:'medium' }}</p>
-          <p><strong>Status:</strong> {{ order.status || 'Pending' }}</p>
 
-          <p *ngIf="allItemsUnavailable(order)" class="text-red-600 font-semibold mt-1">
+          <span class="inline-block mt-2 px-3 py-1 text-sm font-semibold rounded-full shadow-sm"
+                [ngClass]="{
+                  'bg-green-100 text-green-700': order.status === 'Completed',
+                  'bg-red-100 text-red-700': order.status === 'Cancelled',
+                  'bg-yellow-100 text-yellow-700': order.status === 'Pending'
+                }">
+            {{ order.status || 'Pending' }}
+          </span>
+
+          <p *ngIf="allItemsUnavailable(order)"
+             class="text-red-600 font-semibold text-sm mt-1">
             All items in this order are unavailable
           </p>
         </div>
 
         <button (click)="viewOrder(order)"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow font-medium">
+                class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+                       transition font-medium shadow">
           View Details
         </button>
       </div>
 
-      <!-- Products List -->
-      <table class="w-full text-left text-gray-700 border-collapse mt-3">
-        <thead>
-          <tr class="border-b border-gray-300">
-            <th class="py-2 px-3 text-sm font-semibold">Product</th>
-            <th class="py-2 px-3 text-sm font-semibold">Qty</th>
-            <th class="py-2 px-3 text-sm font-semibold">Price</th>
-            <th class="py-2 px-3 text-sm font-semibold">Total</th>
-          </tr>
-        </thead>
-        <tbody> 
-          <tr *ngFor="let item of order.items" class="border-b border-gray-200">
-            <td class="py-2 px-3">{{ item.product_name || 'Unnamed Product' }}</td>
-            <td class="py-2 px-3">{{ item.quantity }}</td>
-            <td class="py-2 px-3">₱{{ item.price || 0 }}</td>
-            <td class="py-2 px-3 font-semibold">₱{{ (item.price || 0) * item.quantity }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Order Total -->
-      <p class="font-bold mt-3 text-right text-gray-900 text-lg">
-        Order Total: ₱{{ getOrderTotal(order) }}
-      </p>
 
     </div>
   </div>
 
-  <app-footer></app-footer>
+  <!-- Sticky Footer -->
+  <app-footer class="mt-auto"></app-footer>
+
+</div>

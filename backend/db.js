@@ -87,6 +87,9 @@ CREATE TABLE sales_reports (
 
 ALTER TABLE products ADD COLUMN is_active TINYINT(1) DEFAULT 1;
 
+ALTER TABLE products
+ADD COLUMN image VARCHAR(255) DEFAULT NULL;
+
 
   =========================================== */
 

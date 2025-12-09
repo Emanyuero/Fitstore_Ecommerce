@@ -39,4 +39,7 @@ export class ProductService {
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+  createImage(product: FormData) {
+    return this.http.post(this.apiUrl, product); // use full URL
+  }
 }

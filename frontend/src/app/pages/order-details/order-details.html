@@ -5,20 +5,16 @@
 
   <!-- CONTENT -->
   <div class="flex-grow max-w-5xl mx-auto py-8 px-4 w-full">
-    <!-- Back to Previous Page -->
-      <button
-        (click)="goBack()"
-        class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-xl
-              hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700 transition font-medium">
-
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M15 19l-7-7 7-7" />
-        </svg>
-
-        Back to Previous Page
-      </button>
+    <!-- Back Button -->
+    <button (click)="goBack()"
+            class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 shadow hover:shadow-lg rounded-full transition-all duration-200 hover:bg-gray-100 font-medium">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
 
     <!-- Back Button -->
     <button (click)="goHome()"

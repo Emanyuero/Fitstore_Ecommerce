@@ -21,9 +21,9 @@ async function seedUsers() {
       address: 'Manila, Philippines',
       gender: 'Male',
       dob: '1985-05-05',
-      email: 'admin@fitstore.com',
-      password: 'admin',
-      user_type: 'admin'
+      email: 'customer@fitstore.com',
+      password: 'customer',
+      user_type: 'customer'
     }
   ];
 

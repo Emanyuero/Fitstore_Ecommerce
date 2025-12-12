@@ -440,6 +440,14 @@ app.get('/api/inventory', (req, res) => {
   });
 });
 
+app.delete('/api/inventory/clear', (req, res) => {
+  InventoryLog.deleteMany({}, (err) => {
+    if (err) return res.status(500).json({ status: 'error', message: err.message });
+    res.json({ status: 'success', message: 'Inventory cleared successfully' });
+  });
+});
+
+
 /* ============================================================
    SALES REPORTS
 ============================================================ */

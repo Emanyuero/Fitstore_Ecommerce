@@ -1,30 +1,36 @@
-<div class="min-h-screen flex flex-col">
+<div class="min-h-screen flex flex-col bg-gray-50">
 
   <!-- Header -->
   <app-header [userName]="name" (logoutClick)="logout()"></app-header>
 
   <!-- Main Content -->
   <main class="flex-1 px-8 py-6">
-      <!-- Back to Previous Page -->
-<button
-  (click)="goBack()"
-  class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-xl
-         hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700 transition font-medium">
 
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-       viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M15 19l-7-7 7-7" />
-  </svg>
+    <!-- Back Button -->
+    <button (click)="goBack()"
+            class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 shadow hover:shadow-lg rounded-full transition-all duration-200 hover:bg-gray-100 font-medium">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
 
-  Back to Previous Page
-</button>
+    <!-- Inventory Summary -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div *ngFor="let summary of inventorySummary"
+           class="p-6 bg-white rounded-3xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-200">
+        <h3 class="text-gray-600 font-semibold mb-2">{{ summary.category }}</h3>
+        <p class="text-4xl font-bold text-gray-900 mb-1">{{ summary.totalStock }}</p>
+        <p class="text-sm text-gray-400">{{ summary.lowStock }} low stock</p>
+      </div>
+    </div>
 
-    <h2 class="text-3xl font-extrabold mb-6 text-gray-900">Inventory Logs</h2>
-
+    <!-- Inventory Logs Table (Enhanced Design Only) -->
     <div class="overflow-x-auto">
-      <table class="min-w-full bg-white border border-gray-200 rounded-2xl shadow-md">
-        <thead class="bg-gray-100 rounded-t-xl">
+      <table class="min-w-full bg-white shadow-md rounded-3xl overflow-hidden border border-gray-200">
+        <thead class="bg-gray-100">
           <tr>
             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Product</th>
@@ -35,13 +41,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let log of inventoryLogs" 
-              class="border-b last:border-b-0 hover:shadow-md hover:bg-gray-50 transition-all rounded-lg">
+          <tr *ngFor="let log of inventoryLogs"
+              class="border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-200">
             <td class="px-6 py-4 font-medium text-gray-800">{{ log.id }}</td>
             <td class="px-6 py-4 text-gray-700">{{ log.product_name }}</td>
             <td class="px-6 py-4 capitalize text-gray-700">{{ log.change_type }}</td>
             <td class="px-6 py-4 font-semibold text-gray-900">{{ log.quantity_changed }}</td>
-            <td class="px-6 py-4 text-gray-700">{{ log.timestamp | date:'short' }}</td>
+            <td class="px-6 py-4 text-gray-500">{{ log.timestamp | date:'short' }}</td>
             <td class="px-6 py-4 font-medium text-gray-800">{{ log.current_stock || '-' }}</td>
           </tr>
         </tbody>
@@ -52,5 +58,4 @@
 
   <!-- Footer -->
   <app-footer class="mt-auto"></app-footer>
-
 </div>

@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-customer-header',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [ CommonModule],
   templateUrl: './customer-header.html',
   styleUrls: ['./customer-header.css']
 })

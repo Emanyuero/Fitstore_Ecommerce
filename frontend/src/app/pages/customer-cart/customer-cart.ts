@@ -27,13 +27,20 @@ export class CustomerCart implements OnInit {
     this.loadCart();
   }
 
-  loadCart() {
-    const email = localStorage.getItem('email')!;
-    this.orderService.getCart(email).subscribe(res => {
-      this.cart = res.cart || [];
-      this.calculateTotal();
-    });
-  }
+loadCart() {
+  const email = localStorage.getItem('email')!;
+
+  this.orderService.getCart(email).subscribe(res => {
+    this.cart = (res.cart || []).map(item => ({
+      ...item,
+      stock_quantity: item.stock_quantity ?? 999999,
+      is_active: item.is_active ?? true
+    }));
+
+    this.calculateTotal();
+  });
+}
+
 
   calculateTotal() {
     this.total = this.cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
@@ -91,8 +98,6 @@ checkout() {
     error: () => this.alert.error('Checkout failed'),
   });
 }
-
-
 
   logout() {
     localStorage.clear();

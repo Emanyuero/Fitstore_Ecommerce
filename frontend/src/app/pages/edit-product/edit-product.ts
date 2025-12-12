@@ -52,6 +52,7 @@ export class EditProduct implements OnInit {
     this.productService.updateProduct(this.productId, product).subscribe({
       next: () => {
         this.alert.success('Product updated successfully!');
+        console.log(product);
         this.router.navigate(['/owner-dashboard']);
       },
       error: () => this.alert.error('Failed to update product.'),

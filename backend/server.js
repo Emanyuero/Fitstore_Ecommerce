@@ -140,20 +140,66 @@ app.post('/api/products', upload.single('image'), (req, res) => {
 
 app.put('/api/products/:id', (req, res) => {
   const { name, price, description, category, stock_quantity } = req.body;
-  const sql = `UPDATE products SET name=?, price=?, description=?, category=?, stock_quantity=? WHERE id=?`;
-  db.query(sql, [name, price, description, category, stock_quantity, req.params.id], (err) => {
+
+  // Get current product
+  db.query('SELECT * FROM products WHERE id = ?', [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ status: 'error', message: err.message });
-    res.json({ status: 'success', message: 'Product updated successfully' });
+    if (!results.length) return res.status(404).json({ status: 'error', message: 'Product not found' });
+
+    const oldProduct = results[0];
+
+    // Update the product
+    const sql = `UPDATE products SET name=?, price=?, description=?, category=?, stock_quantity=? WHERE id=?`;
+    db.query(sql, [name, price, description, category, stock_quantity, req.params.id], (err2) => {
+      if (err2) return res.status(500).json({ status: 'error', message: err2.message });
+
+      // Determine stock change
+      const quantityChanged = stock_quantity - oldProduct.stock_quantity;
+
+      // Only create a log if something changed
+      if (quantityChanged !== 0 || name !== oldProduct.name || price !== oldProduct.price || description !== oldProduct.description || category !== oldProduct.category) {
+        db.query(
+          `INSERT INTO inventory_logs (product_id, product_name, change_type, quantity_changed, current_stock)
+           VALUES (?, ?, 'Updated', ?, ?)`,
+          [req.params.id, name, quantityChanged, stock_quantity],
+          (err3) => {
+            if (err3) console.error('Inventory log error:', err3.message);
+          }
+        );
+      }
+
+      res.json({ status: 'success', message: 'Product updated successfully' });
+    });
+  });
+});
+app.delete('/api/products/:id', (req, res) => {
+  const productId = req.params.id;
+
+  // Get product first
+  db.query('SELECT * FROM products WHERE id = ?', [productId], (err, results) => {
+    if (err) return res.status(500).json({ status: 'error', message: err.message });
+    if (!results.length) return res.status(404).json({ status: 'error', message: 'Product not found' });
+
+    const product = results[0];
+
+    // Delete product
+    db.query('DELETE FROM products WHERE id = ?', [productId], (err2) => {
+      if (err2) return res.status(500).json({ status: 'error', message: err2.message });
+
+      // Log deletion
+      db.query(
+        `INSERT INTO inventory_logs (product_id, product_name, change_type, quantity_changed, current_stock)
+         VALUES (?, ?, 'Deleted', ?, 0)`,
+        [productId, product.name, product.stock_quantity],
+        (err3) => {
+          if (err3) console.error('Failed to log deletion:', err3.message);
+          res.json({ status: 'success', message: 'Product deleted successfully' });
+        }
+      );
+    });
   });
 });
 
-app.delete('/api/products/:id', (req, res) => {
-  db.query('UPDATE products SET is_active = 0 WHERE id = ?', [req.params.id], (err, result) => {
-    if (err) return res.status(500).json({ status: 'error', message: err.message });
-    if (result.affectedRows === 0) return res.status(404).json({ status: 'error', message: 'Product not found' });
-    res.json({ status: 'success', message: 'Product marked as unavailable' });
-  });
-});
 
 /* ============================================================
    CART / STOCK LOGIC
@@ -186,7 +232,7 @@ app.get('/api/cart/:email', (req, res) => {
   });
 });
 
-// ✅ Add to cart with stock update & inventory log
+// ✅ Add to cart WITHOUT affecting stock or inventory log
 app.post('/api/cart/add', (req, res) => {
   const { email, product_id, quantity } = req.body;
   const qty = quantity || 1;
@@ -194,26 +240,19 @@ app.post('/api/cart/add', (req, res) => {
   getOrCreateCartByEmail(email, (err, cartId) => {
     if (err) return res.status(500).json({ status: 'error', message: err.message });
 
-    db.query("SELECT stock_quantity FROM products WHERE id = ?", [product_id], (err2, prod) => {
-      if (err2) return res.json({ status: "error", message: err2.message });
-      if (!prod.length || prod[0].stock_quantity < qty) return res.json({ status: "failed", message: "Not enough stock" });
-
-      db.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?", [qty, product_id], () => {
-        addInventoryLog(product_id, 'Sold', qty);
-      });
-
-      db.query("SELECT * FROM cart_items WHERE cart_id = ? AND product_id = ?", [cartId, product_id], (err3, existing) => {
-        if (err3) return res.json({ status: "error", message: err3.message });
-        if (existing.length > 0) {
-          db.query("UPDATE cart_items SET quantity = ? WHERE id = ?", [existing[0].quantity + qty, existing[0].id]);
-        } else {
-          db.query("INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)", [cartId, product_id, qty]);
-        }
-        res.json({ status: "success", message: "Item added to cart" });
-      });
+    // No stock check here, stock only reduced at checkout
+    db.query("SELECT * FROM cart_items WHERE cart_id = ? AND product_id = ?", [cartId, product_id], (err3, existing) => {
+      if (err3) return res.json({ status: "error", message: err3.message });
+      if (existing.length > 0) {
+        db.query("UPDATE cart_items SET quantity = ? WHERE id = ?", [existing[0].quantity + qty, existing[0].id]);
+      } else {
+        db.query("INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)", [cartId, product_id, qty]);
+      }
+      res.json({ status: "success", message: "Item added to cart" });
     });
   });
 });
+
 
 // ✅ Update cart item with stock adjustment
 app.put('/api/cart/update', (req, res) => {
@@ -269,6 +308,7 @@ app.post('/api/checkout', (req, res) => {
   const { email } = req.body;
   getOrCreateCartByEmail(email, (err, cartId) => {
     if (err) return res.json({ status: "error", message: err.message });
+
     db.query("SELECT * FROM cart_items WHERE cart_id = ?", [cartId], (err2, cartItems) => {
       if (err2) return res.json({ status: "error", message: err2.message });
       if (!cartItems.length) return res.json({ status: "error", message: "Cart is empty" });
@@ -277,12 +317,31 @@ app.post('/api/checkout', (req, res) => {
         if (err3 || !users.length) return res.json({ status: "error", message: "User not found" });
         const userId = users[0].id;
 
+        // Create order
         db.query("INSERT INTO orders (user_id, order_date) VALUES (?, NOW())", [userId], (err4, orderResult) => {
           if (err4) return res.json({ status: "error", message: err4.message });
           const orderId = orderResult.insertId;
           const values = cartItems.map(ci => [orderId, ci.product_id, ci.quantity]);
+
           db.query("INSERT INTO order_items (order_id, product_id, quantity) VALUES ?", [values], (err5) => {
             if (err5) return res.json({ status: "error", message: err5.message });
+
+            // ✅ Reduce stock and create **merged inventory logs per product**
+            const productMap = {}; // productId => total quantity
+            cartItems.forEach(ci => {
+              if (!productMap[ci.product_id]) productMap[ci.product_id] = 0;
+              productMap[ci.product_id] += ci.quantity;
+            });
+
+            Object.keys(productMap).forEach(productId => {
+              const qty = productMap[productId];
+              // Reduce stock
+              db.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?", [qty, productId, qty], (err6) => {
+                if (!err6) addInventoryLog(productId, 'Sold', qty); // log once per product
+              });
+            });
+
+            // Clear cart
             db.query("DELETE FROM cart_items WHERE cart_id = ?", [cartId]);
             res.json({ status: "success", message: "Checkout successful!", orderId });
           });
@@ -291,6 +350,7 @@ app.post('/api/checkout', (req, res) => {
     });
   });
 });
+
 
 /* ============================================================
    ORDERS

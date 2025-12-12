@@ -73,14 +73,19 @@
           </div>
 
           <!-- Stock / Availability Messages -->
-          <p *ngIf="item.stock_quantity !== undefined && item.quantity >= item.stock_quantity"
-             class="text-red-500 text-sm mt-1">
+        @if (item.stock_quantity !== undefined && item.quantity >= item.stock_quantity) {
+          <div class="text-red-500 text-sm mt-1">
             Stock unavailable
-          </p>
-          <p *ngIf="!item.is_active"
-             class="text-red-600 text-sm mt-1 font-medium">
+          </div>
+        }
+
+        @if (!item.is_active) {
+          <div class="text-red-600 text-sm mt-1 font-medium">
             Unavailable
-          </p>
+          </div>
+        }
+
+
         </div>
       </div>
 

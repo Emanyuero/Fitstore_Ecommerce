@@ -1,6 +1,4 @@
-Absolutely! Here's a **ready-to-copy-paste README** for your GitHub repository, tailored to your Express backend with MySQL and file uploads:
 
-````markdown
 # 🛒 E-Commerce Backend API
 
 This is a **Node.js/Express backend API** for an e-commerce system with products, cart, orders, checkout, inventory logs, and sales reports. It uses **MySQL** for the database, **Multer** for image uploads, and **bcrypt** for password hashing.
@@ -78,9 +76,9 @@ mkdir uploads
 5. **Run the server**
 
 ```bash
-node index.js
+node server.js
 # or
-nodemon index.js
+nodemon server.js
 ```
 
 Server will run at: `http://localhost:3000`
@@ -152,11 +150,4 @@ ecommerce-backend/
 
 This project is open-source under the **MIT License**.
 
-```
-
----
-
-If you want, I can also make a **“Postman-ready example request/response table”** section and include it in this README so anyone can immediately test the API without guessing the parameters.  
-
-Do you want me to add that?
 ```

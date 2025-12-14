@@ -1,77 +1,90 @@
 <app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
 
 <!-- Wrapper for Sticky Footer -->
-<div class="min-h-screen flex flex-col bg-gray-100">
+<div class="min-h-screen flex flex-col bg-gray-50">
 
   <!-- CONTENT -->
-  <div class="flex-grow max-w-5xl mx-auto p-6 w-full">
-      
-    <!-- Back Button -->
-    <button (click)="goBack()"
-            class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 shadow hover:shadow-lg rounded-full transition-all duration-200 hover:bg-gray-100 font-medium">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M15 19l-7-7 7-7"/>
-      </svg>
-      Back
-    </button>
-    <button
-      (click)="goHome()"
-      class="mb-8 flex items-center gap-2 px-4 py-2 bg-white shadow-sm rounded-xl 
-            border hover:bg-blue-50 hover:text-blue-600 transition font-medium">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
-      </svg>
-      Back to Home
-    </button>
+  <div class="flex-grow max-w-6xl mx-auto p-6 w-full">
 
-    <h1 class="text-3xl font-extrabold text-gray-900 mb-6">My Orders</h1>
+    <!-- Navigation Buttons -->
+    <div class="flex flex-wrap gap-3 mb-8">
+      <button (click)="goBack()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm hover:shadow-md rounded-lg transition-all duration-200 hover:bg-gray-100 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back
+      </button>
+      <button (click)="goHome()"
+              class="flex items-center gap-2 px-4 py-2 bg-white shadow-sm rounded-lg border hover:bg-blue-50 hover:text-blue-600 transition font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+        </svg>
+        Back to Home
+      </button>
+    </div>
+
+    <!-- Page Title -->
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-8">
+      My Orders
+    </h1>
 
     <!-- No Orders -->
     <div *ngIf="orders.length === 0"
-         class="text-gray-500 bg-white p-8 rounded-xl shadow text-center border">
+         class="text-gray-500 bg-white p-10 rounded-2xl shadow-md text-center border border-gray-200">
       You have no orders yet.
     </div>
 
     <!-- Orders List -->
-    <div *ngFor="let order of orders"
-         class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6 transition hover:shadow-lg">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div *ngFor="let order of orders"
+           class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
 
-      <div class="flex justify-between items-center mb-4">
-        <div>
-          <h2 class="text-xl font-bold text-gray-900">Order #{{ order.id }}</h2>
-          <p class="text-gray-600 text-sm mt-1">Date: {{ order.order_date | date:'medium' }}</p>
+        <div class="flex flex-col justify-between h-full">
 
-          <span class="inline-block mt-2 px-3 py-1 text-sm font-semibold rounded-full shadow-sm"
-                [ngClass]="{
-                  'bg-green-100 text-green-700': order.status === 'Completed',
-                  'bg-red-100 text-red-700': order.status === 'Cancelled',
-                  'bg-yellow-100 text-yellow-700': order.status === 'Pending'
-                }">
-            {{ order.status || 'Pending' }}
-          </span>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-1">Order #{{ order.id }}</h2>
+            <p class="text-gray-500 text-sm mb-2">Date: {{ order.order_date | date:'medium' }}</p>
 
-          <p *ngIf="allItemsUnavailable(order)"
-             class="text-red-600 font-semibold text-sm mt-1">
-            All items in this order are unavailable
-          </p>
+            <span class="inline-block mt-1 px-3 py-1 text-sm font-semibold rounded-full shadow-sm
+                         transition-colors duration-200"
+                  [ngClass]="{
+                    'bg-green-100 text-green-700': order.status === 'Completed',
+                    'bg-red-100 text-red-700': order.status === 'Cancelled',
+                    'bg-yellow-100 text-yellow-700': order.status === 'Pending'
+                  }">
+              {{ order.status || 'Pending' }}
+            </span>
+
+            <p *ngIf="allItemsUnavailable(order)"
+               class="text-red-600 font-medium text-sm mt-2">
+              All items in this order are unavailable
+            </p>
+          </div>
+
+          <button (click)="viewOrder(order)"
+                  class="mt-6 w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl
+                         hover:from-blue-600 hover:to-blue-700 transition shadow-md font-medium flex justify-center items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12H9m6 4H9m6-8H9m12 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            View Details
+          </button>
+
         </div>
 
-        <button (click)="viewOrder(order)"
-                class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
-                       transition font-medium shadow">
-          View Details
-        </button>
       </div>
-
-
     </div>
+
   </div>
 
   <!-- Sticky Footer -->
-  <app-footer class="mt-auto"></app-footer>
+  <app-footer class="mt-auto shadow-inner"></app-footer>
 
 </div>

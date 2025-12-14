@@ -1,51 +1,52 @@
-<div class="min-h-screen flex flex-col bg-gray-100">
+<app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
 
-  <!-- Header -->
-  <app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
+<!-- Wrapper for Sticky Footer -->
+<div class="min-h-screen flex flex-col bg-gray-50">
 
   <!-- Main Content -->
-  <main class="flex-grow max-w-4xl mx-auto p-6 w-full">
+  <main class="flex-grow max-w-5xl mx-auto p-6 w-full">
 
     <!-- Page Title -->
     <h1 class="text-4xl font-extrabold mb-8 text-gray-900 flex items-center gap-3">
-      <span class="text-blue-600">🛒</span> Your Cart
+      <span class="text-blue-600 text-3xl">🛒</span> Your Cart
     </h1>
 
-    <!-- Back Button -->
-    <button (click)="goBack()"
-            class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 shadow hover:shadow-lg rounded-full transition-all duration-200 hover:bg-gray-100 font-medium">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M15 19l-7-7 7-7"/>
-      </svg>
-      Back
-    </button>
-
-    <button
-      (click)="goHome()"
-      class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-xl
-             hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition font-medium">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-           viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
-      </svg>
-      Back to Home
-    </button>
+    <!-- Navigation Buttons -->
+    <div class="flex flex-wrap gap-3 mb-8">
+      <button (click)="goBack()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-lg hover:shadow-md transition duration-200 hover:bg-gray-100 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back
+      </button>
+      <button (click)="goHome()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+        </svg>
+        Back to Home
+      </button>
+    </div>
 
     <!-- Empty Cart -->
     <div *ngIf="cart.length === 0"
-         class="text-gray-500 bg-white p-8 rounded-2xl shadow-md text-center text-lg font-medium">
+         class="text-gray-500 bg-white p-10 rounded-2xl shadow-md text-center text-lg font-medium">
       Your cart is empty.
     </div>
 
     <!-- Cart Items -->
     <div *ngFor="let item of cart"
-         class="flex flex-col md:flex-row justify-between items-center bg-white p-5 mb-5 shadow-lg rounded-2xl hover:shadow-xl transition-transform transform hover:-translate-y-1">
+         class="flex flex-col md:flex-row justify-between items-center bg-white p-6 mb-6 rounded-2xl shadow-sm hover:shadow-lg transition-transform transform hover:-translate-y-1">
 
+      <!-- Product Info -->
       <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-3/4">
-        <!-- Product Info -->
+
+        <!-- Product Details -->
         <div class="flex flex-col gap-2 w-full">
           <p class="font-bold text-lg text-gray-900">{{ item.name }}</p>
           <p class="text-gray-700">Price: <span class="font-semibold text-gray-800">₱{{ item.price }}</span></p>
@@ -53,15 +54,12 @@
           <!-- Quantity Selector -->
           <div class="flex items-center gap-3 mt-2">
             <span class="text-gray-700 font-medium">Quantity:</span>
-
             <button (click)="updateQuantity(item, -1)"
                     [disabled]="item.quantity <= 1"
                     class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
               -
             </button>
-
             <span class="font-semibold text-gray-900">{{ item.quantity }}</span>
-
             <button (click)="updateQuantity(item, 1)"
                     [disabled]="item.stock_quantity !== undefined && item.quantity >= item.stock_quantity"
                     class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
@@ -70,18 +68,14 @@
           </div>
 
           <!-- Stock / Availability Messages -->
-        @if (item.stock_quantity !== undefined && item.quantity >= item.stock_quantity) {
-          <div class="text-red-500 text-sm mt-1">
+          <div *ngIf="item.stock_quantity !== undefined && item.quantity >= item.stock_quantity"
+               class="text-red-500 text-sm mt-1 font-medium">
             Stock unavailable
           </div>
-        }
-
-        @if (!item.is_active) {
-          <div class="text-red-600 text-sm mt-1 font-medium">
+          <div *ngIf="!item.is_active"
+               class="text-red-600 text-sm mt-1 font-medium">
             Unavailable
           </div>
-        }
-
 
         </div>
       </div>
@@ -89,15 +83,16 @@
       <!-- Remove Button -->
       <div class="mt-4 md:mt-0">
         <button (click)="removeItem(item)"
-                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-md transition font-medium">
+                class="px-4 py-2 bg-red-500 text-white rounded-xl shadow-md hover:bg-red-600 transition font-medium">
           Remove
         </button>
       </div>
+
     </div>
 
     <!-- Total -->
     <div *ngIf="cart.length > 0"
-         class="mt-6 text-3xl font-extrabold text-right text-gray-900 border-t border-gray-200 pt-4">
+         class="mt-6 text-3xl font-extrabold text-gray-900 text-right border-t border-gray-200 pt-4">
       Total: <span class="text-blue-600">₱{{ total }}</span>
     </div>
 
@@ -111,6 +106,6 @@
   </main>
 
   <!-- Footer -->
-  <app-footer class="mt-auto"></app-footer>
+  <app-footer class="mt-auto shadow-inner"></app-footer>
 
 </div>

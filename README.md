@@ -131,7 +131,7 @@ ecommerce-backend/
 │
 ├─ uploads/              # Product images
 ├─ db.js                 # MySQL connection
-├─ index.js              # Main Express server
+├─ server.js              # Main Express server
 ├─ package.json          # Dependencies
 └─ README.md
 ```
@@ -150,4 +150,3 @@ ecommerce-backend/
 
 This project is open-source under the **MIT License**.
 
-```

@@ -1,152 +1,173 @@
-<div class="min-h-screen bg-gray-50 flex flex-col">
+<div class="min-h-screen bg-gray-100 flex flex-col">
 
   <!-- Header -->
   <app-header [userName]="name" (logoutClick)="logout()"></app-header>
 
   <!-- Welcome Banner -->
-  <div class="px-8 py-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-b-2xl shadow-md mb-6">
-    <h2 class="text-3xl font-bold">Welcome back, {{ name }}!</h2>
-    <p class="mt-1 text-lg">You are logged in as a <span class="font-semibold">Business Owner</span>.</p>
+  <div class="px-10 py-8 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-b-3xl shadow-lg mb-8">
+    <h2 class="text-4xl font-extrabold tracking-tight">Welcome back, {{ name }}!</h2>
+    <p class="mt-2 text-lg text-blue-100">
+      You are logged in as a <span class="font-semibold text-white">Business Owner</span>.
+    </p>
   </div>
 
-<!-- Navigation -->
-<nav class="px-8 py-4 flex flex-wrap gap-4 items-center bg-white shadow-md border-b border-gray-200 mb-6 rounded-xl">
+  <!-- Navigation -->
+  <nav class="mx-8 mb-8 px-8 py-5 flex flex-wrap gap-4 items-center bg-white rounded-2xl shadow-md border border-gray-200">
 
-  <!-- Action Buttons -->
-  <div class="flex gap-3 flex-wrap">
-    <button (click)="navigateTo('addProduct')"
-            class="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white font-medium rounded-full shadow-lg hover:bg-blue-700 transition">
-      + Add Product
-    </button>
+    <!-- Action Buttons -->
+    <div class="flex gap-3 flex-wrap">
+      <button (click)="navigateTo('addProduct')"
+              class="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-full shadow hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition">
+        + Add Product
+      </button>
 
-    <button (click)="navigateTo('orders')"
-            class="flex items-center gap-2 px-5 py-2 bg-green-600 text-white font-medium rounded-full shadow-lg hover:bg-green-700 transition">
-      Orders
-    </button>
+      <button (click)="navigateTo('orders')"
+              class="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-full shadow hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 transition">
+        Orders
+      </button>
 
-    <button (click)="navigateTo('inventory')"
-            class="flex items-center gap-2 px-5 py-2 bg-yellow-500 text-white font-medium rounded-full shadow-lg hover:bg-yellow-600 transition">
-      Inventory
-    </button>
+      <button (click)="navigateTo('inventory')"
+              class="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-white text-sm font-semibold rounded-full shadow hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 transition">
+        Inventory
+      </button>
 
-    <button (click)="navigateTo('sales')"
-            class="flex items-center gap-2 px-5 py-2 bg-indigo-600 text-white font-medium rounded-full shadow-lg hover:bg-indigo-700 transition">
-      Sales Reports
-    </button>
-  </div>
-
-  <!-- Search Bar -->
-  <input type="text"
-         [(ngModel)]="searchTerm"
-         placeholder="Search products..."
-         class="ml-auto px-5 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none w-64 bg-white"/>
-</nav>
-
-<!-- Products Section -->
-<div class="px-8 py-6">
-  <h2 class="text-2xl font-bold mb-4 text-gray-800">Your Products</h2>
-
-  <!-- Category Filter -->
-<!-- Category Filter -->
-<div class="mb-6">
-  <label class="text-gray-700 font-medium block mb-3">Filter by Category:</label>
-
-  <div class="flex gap-3 flex-wrap">
-
-    <!-- ALL Button -->
-    <button
-      (click)="selectedCategory = ''"
-      class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
-      hover:bg-blue-600 hover:text-white
-     "
-      [ngClass]="selectedCategory === '' 
-        ? 'bg-blue-600 text-white border-blue-600' 
-        : 'bg-white text-gray-700 border-gray-300'">
-      All
-    </button>
-
-    <!-- SPORTS Button -->
-    <button
-      (click)="selectedCategory = 'Sports'"
-      class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
-      hover:bg-blue-600 hover:text-white
-      "
-      [ngClass]="selectedCategory === 'Sports' 
-        ? 'bg-blue-600 text-white border-blue-600' 
-        : 'bg-white text-gray-700 border-gray-300'">
-      Sports
-    </button>
-
-    <!-- FITNESS Button -->
-    <button
-      (click)="selectedCategory = 'Fitness'"
-      class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
-      hover:bg-blue-600 hover:text-white
-      "
-      [ngClass]="selectedCategory === 'Fitness' 
-        ? 'bg-blue-600 text-white border-blue-600' 
-        : 'bg-white text-gray-700 border-gray-300'">
-      Fitness
-    </button>
-
-    <!-- WELLNESS Button -->
-    <button
-      (click)="selectedCategory = 'Wellness'"
-      class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
-      hover:bg-blue-600 hover:text-white
-      "
-      [ngClass]="selectedCategory === 'Wellness' 
-        ? 'bg-blue-600 text-white border-blue-600' 
-        : 'bg-white text-gray-700 border-gray-300'">
-      Wellness
-    </button>
-
-  </div>
-</div>
-
-
-  <!-- Product Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngFor="let product of products | searchFilter:searchTerm | categoryFilter:selectedCategory"
-         class="bg-white rounded-2xl shadow-lg border border-gray-200 p-5 transition hover:shadow-2xl hover:-translate-y-2">
-
-      <img *ngIf="product.image" [src]="product.image" alt="{{ product.name }}"
-           class="w-full h-48 object-cover rounded-xl shadow-sm mb-4">
-
-      <h3 class="text-xl font-semibold text-gray-900">{{ product.name }}</h3>
-      <p class="text-gray-600 mt-2">{{ product.description }}</p>
-
-      <p class="mt-4 text-lg font-bold text-gray-800">₱{{ product.price }}</p>
-
-      <div class="flex items-center gap-3 mt-3 flex-wrap">
-        <span class="px-3 py-1 rounded-full text-xs font-medium"
-              [ngClass]="product.stock_quantity > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-          {{ product.stock_quantity > 0 ? ('In Stock: ' + product.stock_quantity) : 'Out of Stock' }}
-        </span>
-
-        <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-          {{ product.category }}
-        </span>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="mt-5 flex gap-2">
-        <button (click)="editProduct(product.id)"
-                class="flex-1 px-4 py-2 bg-yellow-500 text-white font-medium rounded-lg hover:bg-yellow-600 transition shadow">
-          Edit
-        </button>
-
-        <button (click)="deleteProduct(product.id)"
-                class="flex-1 px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition shadow">
-          Delete
-        </button>
-      </div>
-
+      <button (click)="navigateTo('sales')"
+              class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-full shadow hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 transition">
+        Sales Reports
+      </button>
     </div>
+
+        <!-- Search Bar -->
+        <input type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search products..."
+          class="ml-auto w-72 px-5 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-full shadow-sm focus:ring-4 focus:ring-blue-300 focus:border-blue-500 focus:outline-none"/>
+  </nav>
+
+  <!-- Products Section -->
+  <div class="px-10 py-6 flex-1">
+
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Your Products</h2>
+
+    <!-- Category Filter -->
+    <div class="mb-8">
+      <label class="block mb-4 text-sm font-semibold text-gray-700">
+        Filter by Category
+      </label>
+
+      <div class="flex gap-3 flex-wrap">
+        <button
+          (click)="selectCategory('')"
+          class="px-5 py-2 text-sm font-medium rounded-full border shadow-sm transition hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === '' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          All
+        </button>
+
+        <button
+          (click)="selectCategory('Sports')"
+          class="px-5 py-2 text-sm font-medium rounded-full border shadow-sm transition hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === 'Sports' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          Sports
+        </button>
+
+        <button
+          (click)="selectCategory('Fitness')"
+          class="px-5 py-2 text-sm font-medium rounded-full border shadow-sm transition hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === 'Fitness' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          Fitness
+        </button>
+
+        <button
+          (click)="selectCategory('Wellness')"
+          class="px-5 py-2 text-sm font-medium rounded-full border shadow-sm transition hover:bg-blue-600 hover:text-white"
+          [ngClass]="selectedCategory === 'Wellness' 
+            ? 'bg-blue-600 text-white border-blue-600' 
+            : 'bg-white text-gray-700 border-gray-300'">
+          Wellness
+        </button>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div *ngFor="let product of products | searchFilter:searchTerm | categoryFilter:selectedCategory"
+           class="bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 overflow-hidden">
+
+        <img *ngIf="product.image" [src]="product.image" alt="{{ product.name }}"
+             class="w-full h-52 object-cover">
+
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">{{ product.name }}</h3>
+          <p class="text-sm text-gray-600 line-clamp-3">{{ product.description }}</p>
+
+          <p class="mt-4 text-2xl font-extrabold text-gray-900">
+            ₱{{ product.price }}
+          </p>
+
+          <div class="flex items-center gap-3 mt-4 flex-wrap">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                  [ngClass]="product.stock_quantity > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+              {{ product.stock_quantity > 0 ? ('In Stock: ' + product.stock_quantity) : 'Out of Stock' }}
+            </span>
+
+            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+              {{ product.category }}
+            </span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-6 flex gap-3">
+            <button (click)="editProduct(product.id)"
+                    class="flex-1 px-4 py-2.5 bg-amber-500 text-white text-sm font-semibold rounded-lg shadow hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 transition">
+              Edit
+            </button>
+
+            <button (click)="deleteProduct(product.id)"
+                    class="flex-1 px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-red-700 focus:ring-4 focus:ring-red-300 transition">
+              Delete
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div *ngIf="pagination" class="flex justify-center mt-12">
+      <nav class="inline-flex items-center gap-2 bg-white p-4 rounded-xl shadow border">
+
+        <button
+          (click)="changePage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+          class="px-4 py-2 rounded-lg text-sm font-semibold border
+                disabled:opacity-50 disabled:cursor-not-allowed
+                hover:bg-gray-100 transition">
+          Previous
+        </button>
+
+        <span class="px-4 py-2 text-sm font-semibold text-gray-700">
+          Page {{ pagination.currentPage }} of {{ pagination.totalPages }}
+        </span>
+
+        <button
+          (click)="changePage(currentPage + 1)"
+          [disabled]="currentPage === pagination.totalPages"
+          class="px-4 py-2 rounded-lg text-sm font-semibold border
+                disabled:opacity-50 disabled:cursor-not-allowed
+                hover:bg-gray-100 transition">
+          Next
+        </button>
+
+      </nav>
+    </div>
+
+
   </div>
-</div>
-
-
 
   <!-- Footer -->
   <app-footer></app-footer>

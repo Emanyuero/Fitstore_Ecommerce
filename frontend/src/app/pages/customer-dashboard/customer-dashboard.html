@@ -14,11 +14,12 @@
 
     <!-- Search & Action Buttons -->
     <div class="mb-10 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-      <input type="text"
-             [(ngModel)]="searchTerm"
-             placeholder="Search products..."
-             class="w-full md:max-w-lg px-5 py-3 border border-gray-300 rounded-xl shadow-sm
-                    focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white transition duration-300 hover:shadow-md"/>
+            <input type="text"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange($event)"
+              placeholder="Search products..."
+              class="w-full md:max-w-lg px-5 py-3 border border-gray-300 rounded-xl shadow-sm
+                focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white transition duration-300 hover:shadow-md"/>
 
       <div class="flex gap-3">
         <button (click)="goToCart()" 
@@ -49,7 +50,7 @@
 
         <!-- ALL Button -->
         <button
-          (click)="selectedCategory = ''"
+          (click)="selectCategory('')"
           class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
           hover:bg-blue-600 hover:text-white"
           [ngClass]="selectedCategory === '' 
@@ -60,7 +61,7 @@
 
         <!-- SPORTS Button -->
         <button
-          (click)="selectedCategory = 'Sports'"
+          (click)="selectCategory('Sports')"
           class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
           hover:bg-blue-600 hover:text-white"
           [ngClass]="selectedCategory === 'Sports' 
@@ -71,7 +72,7 @@
 
         <!-- FITNESS Button -->
         <button
-          (click)="selectedCategory = 'Fitness'"
+          (click)="selectCategory('Fitness')"
           class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
           hover:bg-blue-600 hover:text-white"
           [ngClass]="selectedCategory === 'Fitness' 
@@ -82,7 +83,7 @@
 
         <!-- WELLNESS Button -->
         <button
-          (click)="selectedCategory = 'Wellness'"
+          (click)="selectCategory('Wellness')"
           class="px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition
           hover:bg-blue-600 hover:text-white"
           [ngClass]="selectedCategory === 'Wellness' 
@@ -141,10 +142,38 @@
         </div>
       </div>
     </section>
+    <div *ngIf="pagination" class="flex justify-center mt-12">
+      <nav class="inline-flex items-center gap-2 bg-white p-4 rounded-xl shadow border">
+
+        <button
+          (click)="changePage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+          class="px-4 py-2 rounded-lg text-sm font-semibold border
+                disabled:opacity-50 disabled:cursor-not-allowed
+                hover:bg-gray-100 transition">
+          Previous
+        </button>
+
+        <span class="px-4 py-2 text-sm font-semibold text-gray-700">
+          Page {{ pagination.currentPage }} of {{ pagination.totalPages }}
+        </span>
+
+        <button
+          (click)="changePage(currentPage + 1)"
+          [disabled]="currentPage === pagination.totalPages"
+          class="px-4 py-2 rounded-lg text-sm font-semibold border
+                disabled:opacity-50 disabled:cursor-not-allowed
+                hover:bg-gray-100 transition">
+          Next
+        </button>
+
+      </nav>
+    </div>
+
 
 
   </main>
-    <!-- Footer (outside main!) -->
+    <!-- Footer -->
   <app-footer class="w-full mt-auto"></app-footer>
 
 

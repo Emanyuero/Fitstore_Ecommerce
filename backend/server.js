@@ -105,14 +105,53 @@ app.post('/api/login', (req, res) => {
    PRODUCTS
 ============================================================ */
 app.get('/api/products', (req, res) => {
-  db.query(
-    'SELECT *, IF(stock_quantity > 0, "available", "unavailable") AS status FROM products WHERE is_active = 1',
-    (err, results) => {
-      if (err) return res.status(500).json({ status: 'error', message: err.message });
-      res.json({ status: 'success', products: results });
-    }
-  );
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 9;
+  const offset = (page - 1) * limit;
+  const search = req.query.search ? String(req.query.search).trim() : '';
+  const category = req.query.category ? String(req.query.category).trim() : '';
+
+  // Count total products
+  // Build dynamic WHERE clause and params for search/category
+  let where = 'WHERE is_active = 1';
+  const paramsForCount = [];
+  if (search) {
+    where += ' AND (name LIKE ? OR description LIKE ?)';
+    paramsForCount.push(`%${search}%`, `%${search}%`);
+  }
+  if (category) {
+    where += ' AND category = ?';
+    paramsForCount.push(category);
+  }
+
+  db.query(`SELECT COUNT(*) AS total FROM products ${where}`, paramsForCount, (err, countResult) => {
+    if (err) return res.status(500).json({ status: 'error', message: err.message });
+
+    const total = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    // Get paginated products with same filters
+    const sql = `SELECT *, IF(stock_quantity > 0, "available", "unavailable") AS status
+                 FROM products ${where} LIMIT ? OFFSET ?`;
+    const paramsForQuery = paramsForCount.concat([limit, offset]);
+
+    db.query(sql, paramsForQuery, (err2, products) => {
+      if (err2) return res.status(500).json({ status: 'error', message: err2.message });
+
+      res.json({
+        status: 'success',
+        products,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: total,
+          limit
+        }
+      });
+    });
+  });
 });
+
 
 app.get('/api/products/:id', (req, res) => {
   db.query('SELECT * FROM products WHERE id = ?', [req.params.id], (err, results) => {
@@ -441,8 +480,11 @@ app.get('/api/inventory', (req, res) => {
 });
 
 app.delete('/api/inventory/clear', (req, res) => {
-  InventoryLog.deleteMany({}, (err) => {
-    if (err) return res.status(500).json({ status: 'error', message: err.message });
+  db.query('DELETE FROM inventory_logs', (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ status: 'error', message: err.message });
+    }
     res.json({ status: 'success', message: 'Inventory cleared successfully' });
   });
 });

@@ -12,16 +12,33 @@ export interface Product {
   image?: string;
 }
 
+// ✅ Inline Pagination interface
+export interface ProductPagination {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  limit: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
   private apiUrl = 'http://localhost:3000/api/products';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getAll(): Observable<{ status: string; products: Product[] }> {
-    return this.http.get<{ status: string; products: Product[] }>(this.apiUrl);
+  // ✅ Get all products with pagination
+  getAll(page: number = 1, limit: number = 9, searchTerm: string = '', selectedCategory: string = ''): Observable<{
+    status: string;
+    products: Product[];
+    pagination: ProductPagination;
+  }> {
+    const params: string[] = [`page=${page}`, `limit=${limit}`];
+    if (searchTerm && searchTerm.trim().length) params.push(`search=${encodeURIComponent(searchTerm.trim())}`);
+    if (selectedCategory && selectedCategory.trim()) params.push(`category=${encodeURIComponent(selectedCategory.trim())}`);
+    const url = `${this.apiUrl}?${params.join('&')}`;
+    return this.http.get<{ status: string; products: Product[]; pagination: ProductPagination }>(url);
   }
 
   getById(id: number): Observable<{ status: string; product: Product }> {
@@ -39,7 +56,8 @@ export class ProductService {
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
   createImage(product: FormData) {
-    return this.http.post(this.apiUrl, product); // use full URL
+    return this.http.post(this.apiUrl, product);
   }
 }

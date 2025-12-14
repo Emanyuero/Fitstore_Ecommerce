@@ -1,49 +1,76 @@
-  import { Component, OnInit } from '@angular/core';
-  import { Router } from '@angular/router';
-  import { ProductService, Product } from '../../services/product/product';
-  import { AlertService } from '../../services/alert/alert';
-  import { CustomerHeaderComponent } from '../../components/header/customer-header/customer-header';
-  import { FooterComponent } from '../../components/footer/footer';
-  import { CommonModule } from '@angular/common';
-  import { FormsModule } from '@angular/forms';
-  import { SearchFilterPipe } from '../../services/pipes/searchfilter';
-  import { OrderService } from '../../services/order/order';
-  import { CategoryFilterPipe } from '../../services/pipes/category';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ProductService, Product, ProductPagination } from '../../services/product/product';
+import { AlertService } from '../../services/alert/alert';
+import { CustomerHeaderComponent } from '../../components/header/customer-header/customer-header';
+import { FooterComponent } from '../../components/footer/footer';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { OrderService } from '../../services/order/order';
+import { SearchFilterPipe } from '../../services/pipes/search-pipe';
+import { CategoryFilterPipe } from '../../services/pipes/category-pipe';
 
 
-  @Component({
-    selector: 'app-customer-dashboard',
-    standalone: true,
-    imports: [CustomerHeaderComponent, FooterComponent, CommonModule, FormsModule, SearchFilterPipe, CategoryFilterPipe],
-    templateUrl: './customer-dashboard.html'
-  })
-  export class CustomerDashboard implements OnInit {
-    name: string = localStorage.getItem('name') || '';
-    products: Product[] = [];
-    cart: Product[] = [];
-    searchTerm: string = '';
-    selectedCategory: string = '';
 
-    constructor(
-      private router: Router,
-      private productService: ProductService,
-      private alert: AlertService,
-      private order: OrderService
-    ) {}
+@Component({
+  selector: 'app-customer-dashboard',
+  standalone: true,
+  imports: [CustomerHeaderComponent, FooterComponent, CommonModule, FormsModule, SearchFilterPipe, CategoryFilterPipe],
+  templateUrl: './customer-dashboard.html'
+})
+export class CustomerDashboard implements OnInit {
+  name: string = localStorage.getItem('name') || '';
+  products: Product[] = [];
+  cart: Product[] = [];
+  searchTerm: string = '';
+  selectedCategory: string = '';
+  pagination: ProductPagination | null = null;
+  currentPage = 1;
+  limit = 9;
 
-    ngOnInit() {
-      if ((localStorage.getItem('role') || '').toLowerCase() !== 'customer') {
-        this.router.navigate(['/']);
-      }
-      this.loadProducts();
+  constructor(
+    private router: Router,
+    private productService: ProductService,
+    private alert: AlertService,
+    private order: OrderService
+  ) { }
+
+  ngOnInit() {
+    if ((localStorage.getItem('role') || '').toLowerCase() !== 'customer') {
+      this.router.navigate(['/']);
     }
+    this.loadProducts();
+  }
 
-    loadProducts() {
-      this.productService.getAll().subscribe({
-        next: res => { if (res.status === 'success') this.products = res.products; },
-        error: () => this.alert.error('Failed to load products.')
+  selectCategory(category: string) {
+    this.selectedCategory = category;
+    this.loadProducts(1);
+  }
+
+  onSearchChange(term: string) {
+    this.searchTerm = term;
+    this.loadProducts(1);
+  }
+  loadProducts(page: number = 1) {
+    this.productService.getAll(page, this.limit, this.searchTerm, this.selectedCategory)
+      .subscribe({
+        next: res => {
+          if (res.status === 'success') {
+            this.products = res.products;
+            this.pagination = res.pagination;
+            this.currentPage = res.pagination.currentPage;
+          }
+        }
       });
-    }
+  }
+
+
+  changePage(page: number) {
+    if (!this.pagination) return;
+    if (page < 1 || page > this.pagination.totalPages) return;
+    this.loadProducts(page);
+  }
+
 
   addToCart(product: Product) {
     const email = localStorage.getItem('email');
@@ -62,7 +89,7 @@
       quantityToAdd = 1; // You can change this if you want to allow multiple adds at once
       cartItem.stock_quantity! += 1;
     } else {
-      this.cart.push({...product, stock_quantity: 1});
+      this.cart.push({ ...product, stock_quantity: 1 });
     }
 
     this.order.addToCart(email, product.id!, quantityToAdd).subscribe({
@@ -76,11 +103,11 @@
   }
 
 
-    goToCart() { this.router.navigate(['/customer-cart']); }
-    goToOrders() { this.router.navigate(['/customer-orders']); }
-    logout() {
-      localStorage.clear();
-      this.alert.success('You have logged out successfully.');
-      this.router.navigate(['/']);
-    }
+  goToCart() { this.router.navigate(['/customer-cart']); }
+  goToOrders() { this.router.navigate(['/customer-orders']); }
+  logout() {
+    localStorage.clear();
+    this.alert.success('You have logged out successfully.');
+    this.router.navigate(['/']);
   }
+}

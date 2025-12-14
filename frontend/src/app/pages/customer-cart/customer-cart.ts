@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-customer-cart',
+  standalone: true,
   imports: [CustomerHeaderComponent, FooterComponent, CommonModule],
   templateUrl: './customer-cart.html',
 })
@@ -21,25 +22,25 @@ export class CustomerCart implements OnInit {
     private orderService: OrderService,
     private alert: AlertService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadCart();
   }
 
-loadCart() {
-  const email = localStorage.getItem('email')!;
+  loadCart() {
+    const email = localStorage.getItem('email')!;
 
-  this.orderService.getCart(email).subscribe(res => {
-    this.cart = (res.cart || []).map(item => ({
-      ...item,
-      stock_quantity: item.stock_quantity ?? 999999,
-      is_active: item.is_active ?? true
-    }));
+    this.orderService.getCart(email).subscribe(res => {
+      this.cart = (res.cart || []).map(item => ({
+        ...item,
+        stock_quantity: item.stock_quantity ?? 999999,
+        is_active: item.is_active ?? true
+      }));
 
-    this.calculateTotal();
-  });
-}
+      this.calculateTotal();
+    });
+  }
 
 
   calculateTotal() {
@@ -57,7 +58,7 @@ loadCart() {
     // Sync with backend
     const email = localStorage.getItem('email')!;
     this.orderService.updateCart(email, item.product_id, newQty).subscribe({
-      next: () => {},
+      next: () => { },
       error: () => {
         this.alert.error('Failed to update quantity.');
         // revert if server fails
@@ -79,25 +80,25 @@ loadCart() {
     });
   }
 
-checkout() {
-  // Filter out items that are unavailable (missing is_active defaults to true)
-  const unavailableItems = this.cart.filter(i => i.is_active === false);
-  if (unavailableItems.length > 0) {
-    this.alert.error('Some items are unavailable. Please remove them first.');
-    return;
-  }
+  checkout() {
+    // Filter out items that are unavailable (missing is_active defaults to true)
+    const unavailableItems = this.cart.filter(i => i.is_active === false);
+    if (unavailableItems.length > 0) {
+      this.alert.error('Some items are unavailable. Please remove them first.');
+      return;
+    }
 
-  const email = localStorage.getItem('email')!;
-  this.orderService.checkout(email).subscribe({
-    next: () => {
-      this.alert.success('Checkout successful!');
-      this.cart = [];
-      this.total = 0;
-      this.router.navigate(['/customer-orders']);
-    },
-    error: () => this.alert.error('Checkout failed'),
-  });
-}
+    const email = localStorage.getItem('email')!;
+    this.orderService.checkout(email).subscribe({
+      next: () => {
+        this.alert.success('Checkout successful!');
+        this.cart = [];
+        this.total = 0;
+        this.router.navigate(['/customer-orders']);
+      },
+      error: () => this.alert.error('Checkout failed'),
+    });
+  }
 
   logout() {
     localStorage.clear();
@@ -109,7 +110,7 @@ checkout() {
     this.router.navigate(['/customer-dashboard']);
   }
   goBack() {
-  window.history.back();
-}
+    window.history.back();
+  }
 
 }

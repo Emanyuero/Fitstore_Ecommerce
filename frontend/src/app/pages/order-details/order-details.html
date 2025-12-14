@@ -1,32 +1,32 @@
 <app-customer-header [userName]="name" (logoutClick)="logout()"></app-customer-header>
 
 <!-- Page Wrapper for Sticky Footer -->
-<div class="min-h-screen flex flex-col bg-gray-100">
+<div class="min-h-screen flex flex-col bg-gray-50">
 
   <!-- CONTENT -->
   <div class="flex-grow max-w-5xl mx-auto py-8 px-4 w-full">
-    <!-- Back Button -->
-    <button (click)="goBack()"
-            class="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 shadow hover:shadow-lg rounded-full transition-all duration-200 hover:bg-gray-100 font-medium">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M15 19l-7-7 7-7"/>
-      </svg>
-      Back
-    </button>
 
-    <!-- Back Button -->
-    <button (click)="goHome()"
-            class="mb-6 flex items-center gap-2 px-4 py-2 bg-white shadow-sm border 
-                   rounded-lg hover:bg-blue-50 hover:text-blue-600 transition font-medium">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-           viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
-      </svg>
-      Back to Home
-    </button>
+    <!-- Navigation Buttons -->
+    <div class="flex flex-wrap gap-3 mb-8">
+      <button (click)="goBack()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-lg hover:shadow-md transition duration-200 hover:bg-gray-100 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back
+      </button>
+      <button (click)="goHome()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-lg hover:shadow-md hover:bg-blue-50 hover:text-blue-600 transition font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+        </svg>
+        Back to Home
+      </button>
+    </div>
 
     <!-- Loading State -->
     <div *ngIf="loading" class="text-center py-16 text-gray-500 text-lg">
@@ -38,12 +38,12 @@
          class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
 
       <!-- HEADER -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-extrabold text-gray-900">
-          Order #{{ order.id }}
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h1 class="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
+          <span class="text-blue-600">📝</span> Order #{{ order.id }}
         </h1>
 
-        <span class="px-4 py-1.5 rounded-full font-semibold text-sm shadow-sm"
+        <span class="px-4 py-1.5 rounded-full font-semibold text-sm shadow-sm transition-colors duration-200"
               [ngClass]="{
                 'bg-green-100 text-green-700': order.status === 'Completed',
                 'bg-red-100 text-red-700': order.status === 'Cancelled',
@@ -65,7 +65,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of items" class="border-b border-gray-100 hover:bg-gray-50">
+            <tr *ngFor="let item of items" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
               <td class="py-3 px-4 font-medium">{{ item.product_name || 'Unnamed Product' }}</td>
               <td class="py-3 px-4">{{ item.quantity }}</td>
               <td class="py-3 px-4">₱{{ item.price || 0 }}</td>
@@ -78,16 +78,14 @@
       </div>
 
       <!-- TOTAL -->
-      <p class="font-extrabold mt-6 text-right text-gray-900 text-xl">
-        Total: ₱{{ getOrderTotal() }}
+      <p class="font-extrabold mt-6 text-right text-gray-900 text-xl sm:text-2xl">
+        Total: <span class="text-blue-600">₱{{ getOrderTotal() }}</span>
       </p>
 
       <!-- CANCEL BUTTON -->
       <button *ngIf="order.status !== 'Cancelled'"
               (click)="cancelOrder()"
-              class="mt-6 w-full sm:w-auto px-6 py-3 bg-red-600 text-white 
-                     rounded-lg hover:bg-red-700 shadow-md font-semibold 
-                     transition">
+              class="mt-6 w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-2xl shadow-md hover:bg-red-700 transition font-semibold">
         Cancel Order
       </button>
 
@@ -101,6 +99,6 @@
   </div>
 
   <!-- STICKY FOOTER -->
-  <app-footer class="mt-auto"></app-footer>
+  <app-footer class="mt-auto shadow-inner"></app-footer>
 
 </div>

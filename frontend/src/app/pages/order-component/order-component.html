@@ -52,6 +52,7 @@
                   {{ order.status }}
                 </span>
 
+                <!-- Status Dropdown -->
                 <select
                   class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   [(ngModel)]="order.status"
@@ -62,7 +63,6 @@
                   <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
-
               </div>
             </td>
 

@@ -7,11 +7,13 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 @Component({
   selector: 'app-sales-dashboard',
   standalone: true,
   imports: [CommonModule, HeaderComponent, FooterComponent, NgxChartsModule],
+  providers: [provideAnimations()], 
   templateUrl: './sales-report.html'
 })
 export class SalesComponent implements OnInit, OnDestroy {
@@ -83,25 +85,29 @@ export class SalesComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private calculateSalesMetrics(orders: Order[]) {
-    this.totalSales = 0;
+    private calculateSalesMetrics(orders: Order[]) {
+      this.totalSales = 0;
 
-    const monthlyMap: Record<string, number> = {};
+      const monthlyMap: Record<string, number> = {};
 
-    orders.forEach(order => {
-      const date = new Date(order.order_date);
-      const month = `${date.getFullYear()}-${date.getMonth() + 1}`;
-      monthlyMap[month] = monthlyMap[month] || 0;
+      // Filter only delivered orders
+      const deliveredOrders = orders.filter(order => order.status === 'Delivered');
 
-      if (order.items?.length) {
-        const orderTotal = order.items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
-        monthlyMap[month] += orderTotal;
-        this.totalSales += orderTotal;
-      }
-    });
+      deliveredOrders.forEach(order => {
+        const date = new Date(order.order_date);
+        const month = `${date.getFullYear()}-${date.getMonth() + 1}`;
+        monthlyMap[month] = monthlyMap[month] || 0;
 
-    this.salesData = Object.keys(monthlyMap)
-      .sort()
-      .map(month => ({ name: month, value: monthlyMap[month] }));
-  }
+        if (order.items?.length) {
+          const orderTotal = order.items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+          monthlyMap[month] += orderTotal;
+          this.totalSales += orderTotal;
+        }
+      });
+
+      this.salesData = Object.keys(monthlyMap)
+        .sort()
+        .map(month => ({ name: month, value: monthlyMap[month] }));
+    }
+
 }

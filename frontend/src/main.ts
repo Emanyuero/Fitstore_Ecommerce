@@ -3,6 +3,7 @@ import { App } from './app/app';
 import { appConfig } from './app/app.config';
 import { importProvidersFrom } from '@angular/core';
 import { ToastrModule } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 const mainAppConfig = {
   ...appConfig,
@@ -14,7 +15,7 @@ const mainAppConfig = {
         positionClass: 'toast-bottom-center',
         preventDuplicates: true
       })
-    )
+    ), provideAnimations()
   ]
 };
 

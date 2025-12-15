@@ -519,6 +519,21 @@ function handleOrderStatusChange(orderId, status) {
     }
   );
 }
+// Get only delivered orders for sales
+app.get('/api/orders/delivered', (req, res) => {
+  db.query(
+    `SELECT o.*, u.full_name AS customer_name
+     FROM orders o
+     JOIN users u ON u.id = o.user_id
+     WHERE o.status = 'Delivered'
+     ORDER BY o.order_date DESC`,
+    (err, results) => {
+      if (err) return res.json({ status: 'error', message: err.message });
+      res.json({ status: 'success', orders: results });
+    }
+  );
+});
+
 
 
 // ✅ Cancel order with stock restore

@@ -77,3 +77,22 @@ input.ng-invalid.ng-touched {
   animation: shake 0.35s ease-in-out;
   @apply border-red-500 ring-2 ring-red-500/30;
 }
+/* Base slide + fade animation for Create Product */
+@keyframes slideUpCreate {
+  0% { opacity: 0; transform: translateY(25px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slideUpCreate {
+  animation: slideUpCreate 0.7s ease-out forwards;
+}
+
+/* Slightly faster and smaller slide for Edit Product */
+@keyframes slideUpEdit {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slideUpEdit {
+  animation: slideUpEdit 0.5s ease-out forwards;
+}

@@ -441,12 +441,85 @@ app.get('/api/orders/:id/details', (req, res) => {
 // ✅ Update order status
 app.put('/api/orders/:id/status', (req, res) => {
   const { status } = req.body;
-  if (!status) return res.status(400).json({ status: 'error', message: 'Status is required.' });
-  db.query("UPDATE orders SET status = ? WHERE id = ?", [status, req.params.id], (err) => {
+
+  db.query("SELECT status FROM orders WHERE id = ?", [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ status: 'error', message: err.message });
-    res.json({ status: 'success', message: 'Order status updated.' });
+    if (!results.length) return res.status(404).json({ status: 'error', message: 'Order not found' });
+
+    const currentStatus = results[0].status;
+
+    // ❌ Block cancelling delivered orders
+    if (currentStatus === 'Delivered' && status === 'Cancelled') {
+      return res.json({
+        status: 'error',
+        message: 'Delivered orders cannot be cancelled'
+      });
+    }
+
+    db.query(
+      "UPDATE orders SET status = ? WHERE id = ?",
+      [status, req.params.id],
+      (err2) => {
+        if (err2) return res.status(500).json({ status: 'error', message: err2.message });
+
+        // Handle inventory & logs
+        handleOrderStatusChange(req.params.id, status);
+
+        res.json({ status: 'success', message: 'Order status updated' });
+      }
+    );
   });
 });
+function handleOrderStatusChange(orderId, status) {
+  db.query(
+    `SELECT oi.product_id, oi.quantity, p.name, p.stock_quantity
+     FROM order_items oi
+     JOIN products p ON p.id = oi.product_id
+     WHERE oi.order_id = ?`,
+    [orderId],
+    (err, items) => {
+      if (err) return;
+
+      items.forEach(item => {
+
+        if (status === 'Processing') {
+          db.query(
+            `INSERT INTO inventory_logs 
+             (product_id, product_name, change_type, quantity_changed, current_stock)
+             VALUES (?, ?, 'Processing Order', ?, ?)`,
+            [item.product_id, item.name, item.quantity, item.stock_quantity]
+          );
+        }
+
+        if (status === 'Delivered') {
+          db.query(
+            `INSERT INTO inventory_logs 
+             (product_id, product_name, change_type, quantity_changed, current_stock)
+             VALUES (?, ?, 'Delivered', ?, ?)`,
+            [item.product_id, item.name, item.quantity, item.stock_quantity]
+          );
+        }
+
+        if (status === 'Cancelled') {
+          // Restore stock
+          db.query(
+            "UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?",
+            [item.quantity, item.product_id]
+          );
+
+          db.query(
+            `INSERT INTO inventory_logs 
+             (product_id, product_name, change_type, quantity_changed, current_stock)
+             VALUES (?, ?, 'Cancelled Order', ?, ?)`,
+            [item.product_id, item.name, item.quantity, item.stock_quantity + item.quantity]
+          );
+        }
+
+      });
+    }
+  );
+}
+
 
 // ✅ Cancel order with stock restore
 app.put('/api/orders/cancel/:orderId', (req, res) => {

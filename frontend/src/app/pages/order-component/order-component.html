@@ -52,17 +52,22 @@
                   {{ order.status }}
                 </span>
 
-                <!-- Dropdown -->
-                <select
-                  class="px-3 py-1 border rounded-lg text-sm"
-                  [(ngModel)]="order.status"
-                  (change)="updateStatus(order.id, order.status)"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Delivered">Delivered</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
+                              <!-- Dropdown -->
+              <select
+                class="px-3 py-1 border rounded-lg text-sm"
+                [(ngModel)]="order.status"
+                (change)="updateStatus(order.id, order.status)"
+              >
+                <option value="Pending">Pending</option>
+                <option value="Processing">Processing</option>
+                <option value="Delivered">Delivered</option>
+
+                <!-- Disable cancel if delivered -->
+                <option value="Cancelled" [disabled]="order.status === 'Delivered'">
+                  Cancelled
+                </option>
+              </select>
+
 
               </div>
             </td>

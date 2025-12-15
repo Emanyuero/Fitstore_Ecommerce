@@ -57,19 +57,23 @@ loadOrder() {
     return this.items.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
   }
 
-  cancelOrder() {
-    if (!this.order) return;
+    cancelOrder() {
+      if (!this.order) return;
 
-    this.orderService.cancelOrder(this.order.id).subscribe({
-      next: (res) => {
-        this.alert.success('Order canceled successfully!');
-        // Update local status without reload
-        if (this.order) this.order.status = 'Cancelled';
-        this.items = []; // optionally clear items if you want
-      },
-      error: () => this.alert.error('Failed to cancel order.'),
-    });
-  }
+      if (this.order.status === 'Delivered') {
+        this.alert.error('Delivered orders cannot be cancelled.');
+        return;
+      }
+
+      this.orderService.cancelOrder(this.order.id).subscribe({
+        next: () => {
+          this.alert.success('Order cancelled successfully!');
+          this.order!.status = 'Cancelled';
+        },
+        error: () => this.alert.error('Failed to cancel order.')
+      });
+    }
+
 
   goHome() {
     this.router.navigate(['/customer-dashboard']);

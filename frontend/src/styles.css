@@ -2,15 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/* Base layout */
 body {
-  @apply bg-gray-50 min-h-screen;
+  @apply bg-gray-50 min-h-screen animate-fade;
 }
 
 main {
   @apply py-8 px-4;
 }
 
+/* Logo */
 .logo-icon {
-  @apply h-8 w-8 text-blue-600;
+  @apply h-8 w-8 text-blue-600 animate-pop;
+}
+
+/* Login card animation (auto-detects your layout) */
+.max-w-md {
+  @apply animate-slideUp;
+}
+
+/* Input focus – Flowbite style */
+input:focus {
+  @apply ring-4 ring-blue-500/25 transition;
+}
+
+/* Button micro-interactions */
+button[type="submit"] {
+  @apply transition transform;
+}
+
+button[type="submit"]:hover {
+  @apply -translate-y-0.5 shadow-xl;
+}
+
+button[type="submit"]:active {
+  @apply scale-95;
+}
+/* Input base animation */
+input {
+  @apply transition-all duration-200 ease-out;
+}
+
+/* Focus animation (Flowbite-style) */
+input:focus {
+  @apply ring-4 ring-blue-500/25 border-blue-500 scale-[1.01];
+}
+
+/* Placeholder smooth fade */
+input::placeholder {
+  @apply transition-opacity duration-200;
+}
+
+input:focus::placeholder {
+  opacity: 0.5;
+}
+
+/* Disabled input */
+input:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
+
+/* Error shake animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+
+/* Apply shake when Angular marks input invalid */
+input.ng-invalid.ng-touched {
+  animation: shake 0.35s ease-in-out;
+  @apply border-red-500 ring-2 ring-red-500/30;
 }

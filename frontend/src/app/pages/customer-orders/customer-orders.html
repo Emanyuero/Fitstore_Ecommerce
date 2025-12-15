@@ -50,15 +50,17 @@
             <h2 class="text-xl font-semibold text-gray-900 mb-1">Order #{{ order.id }}</h2>
             <p class="text-gray-500 text-sm mb-2">Date: {{ order.order_date | date:'medium' }}</p>
 
-            <span class="inline-block mt-1 px-3 py-1 text-sm font-semibold rounded-full shadow-sm
-                         transition-colors duration-200"
+                <span
+                  class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
                   [ngClass]="{
-                    'bg-green-100 text-green-700': order.status === 'Completed',
-                    'bg-red-100 text-red-700': order.status === 'Cancelled',
-                    'bg-yellow-100 text-yellow-700': order.status === 'Pending'
+                    'bg-yellow-100 text-yellow-700': order.status === 'Pending',
+                    'bg-blue-100 text-blue-700': order.status === 'Processing',
+                    'bg-green-100 text-green-700': order.status === 'Delivered',
+                    'bg-red-100 text-red-700': order.status === 'Cancelled'
                   }">
-              {{ order.status || 'Pending' }}
-            </span>
+                  {{ order.status }}
+                </span>
+
 
             <p *ngIf="allItemsUnavailable(order)"
                class="text-red-600 font-medium text-sm mt-2">

@@ -1,152 +1,144 @@
+# Fitstore — E-Commerce App (Backend + Frontend)
 
-# 🛒 E-Commerce Backend API
+A full-stack e-commerce sample application with an Angular frontend and a Node.js + Express backend. The project includes product management, cart/checkout flows, order handling, inventory logging, image uploads, and basic authentication.
 
-This is a **Node.js/Express backend API** for an e-commerce system with products, cart, orders, checkout, inventory logs, and sales reports. It uses **MySQL** for the database, **Multer** for image uploads, and **bcrypt** for password hashing.
-
----
-
-## 🔹 Features
-
-- **User Authentication**
-  - Register and login
-  - Password hashing with bcrypt
-  - Role-based redirect (customer, owner/business)
-  
-- **Products**
-  - CRUD operations
-  - Optional image upload
-  - Stock tracking with inventory logs
-  
-- **Cart**
-  - Add, update, remove items
-  - Stock is managed at checkout
-  - Cart auto-creation by user email
-
-- **Checkout & Orders**
-  - Create orders from cart items
-  - Stock reduction and inventory logging
-  - Order status update (Pending, Processing, Delivered, Cancelled)
-  - Cancel order with stock restoration
-
-- **Inventory & Sales Reports**
-  - Inventory logs with changes
-  - Clear inventory logs
-  - Sales reports with generator info
+Key goals: clear separation between frontend and backend, easy local setup, and an example data seeder for development.
 
 ---
 
-## 🔹 Technologies
+## Contents
 
-- **Node.js** & **Express**
-- **MySQL**
-- **bcrypt** for password hashing
-- **Multer** for file/image uploads
-- **CORS** and **body-parser**
-- RESTful API design
+- `backend/` — Node.js + Express API, MySQL integration, file uploads, and seed scripts.
+- `frontend/` — Angular single-page app (UI for customers and owners).
+- `uploads/` — Uploaded product images (backend).
 
 ---
 
-## 🔹 Installation
+## Quick Start
 
-1. **Clone the repository**
+Prerequisites
+
+- Node.js (v16+ recommended)
+- npm
+- MySQL (or compatible server)
+- Angular CLI (optional, for local frontend development)
+
+Backend (API)
+
+1. Open a terminal and change to the backend folder:
 
 ```bash
-git clone https://github.com/yourusername/ecommerce-backend.git
-cd ecommerce-backend
-````
+cd backend
+```
 
-2. **Install dependencies**
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. **Configure database**
+3. Configure database credentials in `db.js` or via environment variables (e.g. `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`).
 
-* Create a MySQL database
-* Import `schema.sql` (your tables)
-* Update `db.js` with your database credentials
-
-4. **Create uploads folder**
+4. (Optional) Seed development data:
 
 ```bash
-mkdir uploads
+node seeder.js
 ```
 
-5. **Run the server**
+5. Start the API server:
 
 ```bash
 node server.js
-# or
+# or with nodemon if installed:
 nodemon server.js
 ```
 
-Server will run at: `http://localhost:3000`
+By default the API listens on `http://localhost:3000` (or the port set in `server.js`).
 
----
+Frontend (Angular)
 
-## 🔹 API Endpoints
+1. Change to the frontend folder:
 
-### **Auth**
-
-* `POST /api/register` – Register new user
-* `POST /api/login` – Login user
-
-### **Products**
-
-* `GET /api/products` – List products with filters
-* `GET /api/products/:id` – Get product by ID
-* `POST /api/products` – Add product (image optional)
-* `PUT /api/products/:id` – Update product
-* `DELETE /api/products/:id` – Delete product
-
-### **Cart**
-
-* `GET /api/cart/:email` – Get user's cart
-* `POST /api/cart/add` – Add item to cart
-* `PUT /api/cart/update` – Update cart item
-* `DELETE /api/cart/remove/:email/:productId` – Remove item from cart
-
-### **Checkout & Orders**
-
-* `POST /api/checkout` – Checkout cart and create order
-* `GET /api/orders` – All orders
-* `GET /api/orders/:email` – User orders
-* `GET /api/orders/:id/details` – Specific order with items
-* `PUT /api/orders/:id/status` – Update order status
-* `PUT /api/orders/cancel/:orderId` – Cancel order
-
-### **Inventory & Sales**
-
-* `GET /api/inventory` – View inventory logs
-* `DELETE /api/inventory/clear` – Clear logs
-* `GET /api/sales-reports` – Get sales reports
-
----
-
-## 🔹 Folder Structure
-
-```
-ecommerce-backend/
-│
-├─ uploads/              # Product images
-├─ db.js                 # MySQL connection
-├─ server.js              # Main Express server
-├─ package.json          # Dependencies
-└─ README.md
+```bash
+cd ../frontend
 ```
 
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Run the development server:
+
+```bash
+ng serve --open
+# or
+npm run start
+```
+
+The frontend will open at `http://localhost:4200` by default. Configure the API base URL in the frontend config if needed.
+
 ---
 
-## 🔹 Notes
+## Environment & Configuration
 
-* **Stock Management:** Stock is reduced only at checkout, not on adding items to cart.
-* **Inventory Logs:** Logs are created on product add/update/delete and checkout.
-* **Authentication:** No JWT yet, just session-less login responses (can be extended).
+- Backend environment variables (examples):
+  - `PORT` — API port (default: 3000)
+  - `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME` — MySQL connection
+  - `UPLOAD_DIR` — path for uploaded images (default: `uploads/`)
+
+Place environment variables in a `.env` file or directly in your process manager.
 
 ---
 
-## 🔹 License
+## Project Structure (high-level)
 
-This project is open-source under the **MIT License**.
+- `backend/`
+
+  - `server.js` — Express server and routes
+  - `db.js` — database connection
+  - `seeder.js` — development data seeder
+  - `uploads/` — image uploads
+
+- `frontend/` — Angular app (components, services, pages)
+
+---
+
+## Useful Commands
+
+- Install backend deps: `cd backend && npm install`
+- Run backend: `node server.js` or `nodemon server.js`
+- Seed dev data: `node seeder.js`
+- Install frontend deps: `cd frontend && npm install`
+- Run frontend dev server: `ng serve --open` or `npm run start`
+- Build frontend for production: `ng build --configuration production`
+
+---
+
+## Testing & Linting
+
+The frontend contains unit test specs (`*.spec.ts`) that can be run with the Angular testing setup. Run `npm test` inside `frontend/` if available.
+
+---
+
+## Notes & Recommendations
+
+- Keep uploads out of version control; `uploads/` should be in `.gitignore`.
+- For production, use a managed MySQL instance and a reverse proxy (NGINX) or hosting platform.
+- Consider adding JWT-based authentication and HTTPS for production.
+
+---
+
+## Contributing
+
+Contributions are welcome. Open an issue to discuss changes or submit a pull request with a clear description of the change and tests where appropriate.
+
+---
+
+## License
+
+This project is provided under the MIT License.
+
+---
 

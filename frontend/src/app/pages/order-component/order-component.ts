@@ -41,6 +41,7 @@ ngOnInit() {
 }
 
 
+
   loadOrders() {
     this.http.get<any>('http://localhost:3000/api/orders').subscribe({
       next: (res) => {
@@ -64,18 +65,23 @@ ngOnInit() {
   }
 
     updateStatus(orderId: number, status: string) {
-    this.http.put<any>(
-      `http://localhost:3000/api/orders/${orderId}/status`,
-      { status }
-    ).subscribe({
-      next: (res) => {
-        if (res.status === 'success') {
-          this.alert.success(`Order #${orderId} updated to ${status}`);
-        }
-      },
-      error: () => this.alert.error('Failed to update status')
-    });
-  }
+      const order = this.orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      if (order.status === 'Cancelled') {
+        this.alert.error("Cannot update status: Order was cancelled by the customer.");
+        return;
+      }
+
+      this.http.put<any>(`http://localhost:3000/api/orders/${orderId}/status`, { status })
+        .subscribe({
+          next: res => {
+            if (res.status === 'success') this.alert.success(`Order #${orderId} updated to ${status}`);
+          },
+          error: () => this.alert.error('Failed to update status')
+        });
+    }
+
 }
 
 
